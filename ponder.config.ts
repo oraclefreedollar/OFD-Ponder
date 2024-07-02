@@ -1,14 +1,19 @@
 import { createConfig } from "@ponder/core";
 import { http, parseAbiItem } from "viem";
 
+import { bsc } from "viem/chains";
+
 import { Equity } from "./abis/Equity";
 import { MintingHub } from "./abis/MintingHub";
 import { OracleFreeDollar } from "./abis/OracleFreeDollar";
 import { Position } from "./abis/Position";
 
-//const transport = http(process.env.PONDER_RPC_URL_1);
-const transport = "https://api.bscscan.com/api&apikey=FQJU2CEDJQSED4AAN2YA9ABNXC6ZBSP5WZ"
-
+const chain = bsc;
+const transport = http(
+  (chain.id as number) === 56
+    ? process.env.PONDER_RPC_URL_1
+    : chain.rpcUrls.default.http[0]
+);
 const openPositionEvent = parseAbiItem(
   "event PositionOpened(address indexed owner,address indexed position,address ofd,address collateral,uint256 price)"
 );
