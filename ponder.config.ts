@@ -7,6 +7,7 @@ import { OracleFreeDollar } from "./abis/OracleFreeDollar";
 import { Position } from "./abis/Position";
 
 //const transport = http(process.env.PONDER_RPC_URL_1);
+const transport = "https://api.bscscan.com/api&apikey=FQJU2CEDJQSED4AAN2YA9ABNXC6ZBSP5WZ"
 
 const openPositionEvent = parseAbiItem(
   "event PositionOpened(address indexed owner,address indexed position,address ofd,address collateral,uint256 price)"
