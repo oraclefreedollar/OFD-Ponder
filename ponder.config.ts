@@ -6,7 +6,7 @@ import { MintingHub } from "./abis/MintingHub";
 import { OracleFreeDollar } from "./abis/OracleFreeDollar";
 import { Position } from "./abis/Position";
 
-const transport = http(process.env.PONDER_RPC_URL_1);
+//const transport = http(process.env.PONDER_RPC_URL_1);
 
 const openPositionEvent = parseAbiItem(
   "event PositionOpened(address indexed owner,address indexed position,address ofd,address collateral,uint256 price)"
