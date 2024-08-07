@@ -33,13 +33,13 @@ export default createConfig({
       network: "bsc",
       abi: OracleFreeDollar,
       address: "0x55899A4Cd6D255DCcAA84d67E3A08043F2123d7E",
-      startBlock: 0,
+      startBlock: 3788197,
     },
     Equity: {
       network: "bsc",
       abi: Equity,
       address: "0xeA38b0cD48fA781181FDAa37291e8d6668462261",
-      startBlock: 0,
+      startBlock: 3788197,
     },
     MintingHub: {
       network: "bsc",
