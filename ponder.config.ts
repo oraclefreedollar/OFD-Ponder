@@ -1,4 +1,4 @@
-import { createConfig } from "@ponder/core";
+import { createConfig, rateLimit } from "@ponder/core";
 import "dotenv/config";
 import { http, parseAbiItem } from "viem";
 
@@ -10,10 +10,13 @@ import { OracleFreeDollar } from "./abis/OracleFreeDollar";
 import { Position } from "./abis/Position";
 
 const chain = bsc;
-const transport = http(
-  (chain.id as number) === 56
-    ? process.env.PONDER_RPC_URL_1
-    : chain.rpcUrls.default.http[0]
+const transport = rateLimit(
+  http(
+    (chain.id as number) === 56
+      ? process.env.PONDER_RPC_URL_1
+      : chain.rpcUrls.default.http[0]
+  ),
+  { requestsPerSecond: 25 }
 );
 
 console.log(transport);
