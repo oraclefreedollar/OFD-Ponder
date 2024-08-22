@@ -37,18 +37,21 @@ export default createConfig({
       abi: OracleFreeDollar,
       address: "0x55899A4Cd6D255DCcAA84d67E3A08043F2123d7E",
       startBlock: 37881973,
+      maxBlockRange: 5000,
     },
     Equity: {
       network: "bsc",
       abi: Equity,
       address: "0xeA38b0cD48fA781181FDAa37291e8d6668462261",
       startBlock: 37881973,
+      maxBlockRange: 5000,
     },
     MintingHub: {
       network: "bsc",
       abi: MintingHub,
       address: "0xFe00054AF44E24f0B4bd49b1A2d2984C4264aabE",
       startBlock: 37882077,
+      maxBlockRange: 5000,
     },
     Position: {
       network: "bsc",
@@ -59,6 +62,7 @@ export default createConfig({
         parameter: "position",
       },
       startBlock: 37882077,
+      maxBlockRange: 5000,
     },
   },
 });
