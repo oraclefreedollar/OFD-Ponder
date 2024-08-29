@@ -1,7 +1,19 @@
-import { ponder } from "@/generated";
+import { ponder } from '@/generated';
+import { Address, zeroAddress } from 'viem';
 
-ponder.on("OracleFreeDollar:Profit", async ({ event, context }) => {
-  const { OFDPS, ActiveUser } = context.db;
+ponder.on('OracleFreeDollar:Profit', async ({ event, context }) => {
+  const { OFDPS, ActiveUser, Ecosystem } = context.db;
+
+  await Ecosystem.upsert({
+    id: 'Equity:ProfitCounter',
+    create: {
+      value: '',
+      amount: 1n,
+    },
+    update: ({ current }) => ({
+      amount: current.amount + 1n,
+    }),
+  });
 
   await OFDPS.upsert({
     id: event.log.address,
@@ -14,6 +26,7 @@ ponder.on("OracleFreeDollar:Profit", async ({ event, context }) => {
       profits: current.profits + event.args.amount,
     }),
   });
+
   await ActiveUser.upsert({
     id: event.transaction.from,
     create: {
@@ -25,8 +38,19 @@ ponder.on("OracleFreeDollar:Profit", async ({ event, context }) => {
   });
 });
 
-ponder.on("OracleFreeDollar:Loss", async ({ event, context }) => {
-  const { OFDPS, ActiveUser } = context.db;
+ponder.on('OracleFreeDollar:Loss', async ({ event, context }) => {
+  const { OFDPS, ActiveUser, Ecosystem } = context.db;
+
+  await Ecosystem.upsert({
+    id: 'Equity:LossCounter',
+    create: {
+      value: '',
+      amount: 1n,
+    },
+    update: ({ current }) => ({
+      amount: current.amount + 1n,
+    }),
+  });
 
   await OFDPS.upsert({
     id: event.log.address,
@@ -39,6 +63,7 @@ ponder.on("OracleFreeDollar:Loss", async ({ event, context }) => {
       loss: current.profits + event.args.amount,
     }),
   });
+
   await ActiveUser.upsert({
     id: event.transaction.from,
     create: {
@@ -50,12 +75,23 @@ ponder.on("OracleFreeDollar:Loss", async ({ event, context }) => {
   });
 });
 
-ponder.on("OracleFreeDollar:MinterApplied", async ({ event, context }) => {
-  const { Minter, ActiveUser } = context.db;
+ponder.on('OracleFreeDollar:MinterApplied', async ({ event, context }) => {
+  const { Minter, ActiveUser, Ecosystem } = context.db;
 
-  await Minter.create({
+  await Ecosystem.upsert({
+    id: 'OracleFreeDollar:MinterAppliedCounter',
+    create: {
+      value: '',
+      amount: 1n,
+    },
+    update: ({ current }) => ({
+      amount: current.amount + 1n,
+    }),
+  });
+
+  await Minter.upsert({
     id: event.args.minter,
-    data: {
+    create: {
       minter: event.args.minter,
       applicationPeriod: event.args.applicationPeriod,
       applicationFee: event.args.applicationFee,
@@ -63,6 +99,17 @@ ponder.on("OracleFreeDollar:MinterApplied", async ({ event, context }) => {
       applyDate: event.block.timestamp,
       suggestor: event.transaction.from,
     },
+    update: ({ current }) => ({
+      minter: event.args.minter,
+      applicationPeriod: event.args.applicationPeriod,
+      applicationFee: event.args.applicationFee,
+      applyMessage: event.args.message,
+      applyDate: event.block.timestamp,
+      suggestor: event.transaction.from,
+      denyDate: undefined,
+      denyMessage: undefined,
+      vetor: undefined,
+    }),
   });
 
   await ActiveUser.upsert({
@@ -76,8 +123,19 @@ ponder.on("OracleFreeDollar:MinterApplied", async ({ event, context }) => {
   });
 });
 
-ponder.on("OracleFreeDollar:MinterDenied", async ({ event, context }) => {
-  const { Minter, ActiveUser } = context.db;
+ponder.on('OracleFreeDollar:MinterDenied', async ({ event, context }) => {
+  const { Minter, ActiveUser, Ecosystem } = context.db;
+
+  await Ecosystem.upsert({
+    id: 'OracleFreeDollar:MinterDeniedCounter',
+    create: {
+      value: '',
+      amount: 1n,
+    },
+    update: ({ current }) => ({
+      amount: current.amount + 1n,
+    }),
+  });
 
   await Minter.update({
     id: event.args.minter,
@@ -97,4 +155,131 @@ ponder.on("OracleFreeDollar:MinterDenied", async ({ event, context }) => {
       lastActiveTime: event.block.timestamp,
     }),
   });
+});
+
+ponder.on('OracleFreeDollar:Transfer', async ({ event, context }) => {
+  const { Mint, Burn, MintBurnAddressMapper, ActiveUser, Ecosystem } = context.db;
+
+  await Ecosystem.upsert({
+    id: 'OracleFreeDollar:TransferCounter',
+    create: {
+      value: '',
+      amount: 1n,
+    },
+    update: ({ current }) => ({
+      amount: current.amount + 1n,
+    }),
+  });
+
+  // emit Transfer(address(0), recipient, amount);
+  if (event.args.from === zeroAddress) {
+    await Mint.create({
+      id: `${event.args.to}-mint-${event.block.number}`,
+      data: {
+        to: event.args.to,
+        value: event.args.value,
+        blockheight: event.block.number,
+        timestamp: event.block.timestamp,
+      },
+    });
+
+    await Ecosystem.upsert({
+      id: 'OracleFreeDollar:MintCounter',
+      create: {
+        value: '',
+        amount: 1n,
+      },
+      update: ({ current }) => ({
+        amount: current.amount + 1n,
+      }),
+    });
+
+    await Ecosystem.upsert({
+      id: 'OracleFreeDollar:Mint',
+      create: {
+        value: '',
+        amount: event.args.value,
+      },
+      update: ({ current }) => ({
+        amount: current.amount + event.args.value,
+      }),
+    });
+
+    await MintBurnAddressMapper.upsert({
+      id: event.args.to.toLowerCase(),
+      create: {
+        mint: event.args.value,
+        burn: 0n,
+      },
+      update: ({ current }) => ({
+        mint: current.mint + event.args.value,
+      }),
+    });
+
+    await ActiveUser.upsert({
+      id: event.transaction.to as Address,
+      create: {
+        lastActiveTime: event.block.timestamp,
+      },
+      update: () => ({
+        lastActiveTime: event.block.timestamp,
+      }),
+    });
+  }
+
+  // emit Transfer(account, address(0), amount);
+  if (event.args.to === zeroAddress) {
+    await Burn.create({
+      id: `${event.args.from}-burn-${event.block.number}`,
+      data: {
+        from: event.args.from,
+        value: event.args.value,
+        blockheight: event.block.number,
+        timestamp: event.block.timestamp,
+      },
+    });
+
+    await Ecosystem.upsert({
+      id: 'OracleFreeDollar:BurnCounter',
+      create: {
+        value: '',
+        amount: 1n,
+      },
+      update: ({ current }) => ({
+        amount: current.amount + 1n,
+      }),
+    });
+
+    await Ecosystem.upsert({
+      id: 'OracleFreeDollar:Burn',
+      create: {
+        value: '',
+        amount: event.args.value,
+      },
+      update: ({ current }) => ({
+        amount: current.amount + event.args.value,
+      }),
+    });
+
+    await MintBurnAddressMapper.upsert({
+      id: event.args.from.toLowerCase(),
+      create: {
+        mint: 0n,
+        burn: event.args.value,
+      },
+      update: ({ current }) => ({
+        burn: current.burn + event.args.value,
+      }),
+    });
+
+    await ActiveUser.upsert({
+      id: event.transaction.from,
+      create: {
+        lastActiveTime: event.block.timestamp,
+      },
+      update: () => ({
+        lastActiveTime: event.block.timestamp,
+      }),
+    });
+  }
 });
