@@ -15,10 +15,10 @@ const chain = bsc;
 
 const CONFIG = {
   [bsc.id]: {
-    rpc: process.env.RPC_URL_MAINNET ?? bsc.rpcUrls.default.http[0],
+    rpc: process.env.PONDER_RPC_URL_1 ?? bsc.rpcUrls.default.http[0],
     startBlockA: 37881973,
     startBlockB: 37882077,
-    blockrange: undefined,
+    blockrange: 10000,
     maxRequestsPerSecond: 5,
     pollingInterval: 5_000,
   },
