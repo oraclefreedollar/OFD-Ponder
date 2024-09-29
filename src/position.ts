@@ -1,7 +1,7 @@
-import { ponder } from "@/generated";
-import { Position as PositionABI } from "../abis/Position";
+import { ponder } from '@/generated';
+import { Position as PositionABI } from '../abis/Position';
 
-ponder.on("Position:MintingUpdate", async ({ event, context }) => {
+ponder.on('Position:MintingUpdate', async ({ event, context }) => {
   const { client } = context;
   const { Position, ActiveUser } = context.db;
 
@@ -12,7 +12,13 @@ ponder.on("Position:MintingUpdate", async ({ event, context }) => {
   const availableForClones = await client.readContract({
     abi: PositionABI,
     address: positionAddress,
-    functionName: "limitForClones",
+    functionName: 'limitForClones',
+  });
+
+  const cooldown = await client.readContract({
+    abi: PositionABI,
+    address: positionAddress,
+    functionName: 'cooldown',
   });
 
   const position = await Position.findUnique({
@@ -20,8 +26,7 @@ ponder.on("Position:MintingUpdate", async ({ event, context }) => {
   });
 
   if (position) {
-    const limitForPosition =
-      (collateral * price) / BigInt(10 ** position.ofdDecimals);
+    const limitForPosition = (collateral * price) / BigInt(10 ** position.ofdDecimals);
     const availableForPosition = limitForPosition - minted;
 
     await Position.update({
@@ -34,10 +39,12 @@ ponder.on("Position:MintingUpdate", async ({ event, context }) => {
         limitForClones: limit,
         availableForPosition,
         availableForClones,
+        cooldown,
         closed: collateral == 0n,
       },
     });
   }
+
   await ActiveUser.upsert({
     id: event.transaction.from,
     create: {
@@ -49,20 +56,30 @@ ponder.on("Position:MintingUpdate", async ({ event, context }) => {
   });
 });
 
-ponder.on("Position:PositionDenied", async ({ event, context }) => {
-  const { Position, ActiveUser } = context.db;
+ponder.on('Position:PositionDenied', async ({ event, context }) => {
+  const { Position, ActiveUser, Ecosystem } = context.db;
+  const { client } = context;
 
   const position = await Position.findUnique({
     id: event.log.address.toLowerCase(),
   });
+
+  const cooldown = await client.readContract({
+    abi: PositionABI,
+    address: event.log.address,
+    functionName: 'cooldown',
+  });
+
   if (position) {
     await Position.update({
       id: event.log.address.toLowerCase(),
       data: {
+        cooldown,
         denied: true,
       },
     });
   }
+
   await ActiveUser.upsert({
     id: event.transaction.from,
     create: {
@@ -74,7 +91,7 @@ ponder.on("Position:PositionDenied", async ({ event, context }) => {
   });
 });
 
-ponder.on("Position:OwnershipTransferred", async ({ event, context }) => {
+ponder.on('Position:OwnershipTransferred', async ({ event, context }) => {
   const { Position, ActiveUser } = context.db;
 
   const position = await Position.findUnique({
