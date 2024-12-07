@@ -1,526 +1,627 @@
 export const MintingHub = [
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "_ofd",
-        type: "address",
+        "internalType": "address",
+        "name": "_ofd",
+        "type": "address"
       },
       {
-        internalType: "address",
-        name: "_factory",
-        type: "address",
+        "internalType": "address",
+        "name": "_leadrate",
+        "type": "address"
       },
+      {
+        "internalType": "address",
+        "name": "_roller",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_factory",
+        "type": "address"
+      }
     ],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
-    inputs: [],
-    name: "InvalidPos",
-    type: "error",
+    "inputs": [],
+    "name": "IncompatibleCollateral",
+    "type": "error"
   },
   {
-    inputs: [],
-    name: "UnexpectedPrice",
-    type: "error",
+    "inputs": [],
+    "name": "InsufficientCollateral",
+    "type": "error"
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "position",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "number",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "size",
-        type: "uint256",
-      },
-    ],
-    name: "ChallengeAverted",
-    type: "event",
+    "inputs": [],
+    "name": "InvalidPos",
+    "type": "error"
   },
   {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "challenger",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "position",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "size",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "number",
-        type: "uint256",
-      },
-    ],
-    name: "ChallengeStarted",
-    type: "event",
+    "inputs": [],
+    "name": "UnexpectedPrice",
+    "type": "error"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "position",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "position",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "number",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "number",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "bid",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "acquiredCollateral",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "challengeSize",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "size",
+        "type": "uint256"
+      }
     ],
-    name: "ChallengeSucceeded",
-    type: "event",
+    "name": "ChallengeAverted",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "owner",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "challenger",
+        "type": "address"
       },
       {
-        indexed: true,
-        internalType: "address",
-        name: "position",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "position",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "address",
-        name: "ofd",
-        type: "address",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "size",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "address",
-        name: "collateral",
-        type: "address",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "price",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "number",
+        "type": "uint256"
+      }
     ],
-    name: "PositionOpened",
-    type: "event",
+    "name": "ChallengeStarted",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "address",
-        name: "collateral",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "position",
+        "type": "address"
       },
       {
-        indexed: true,
-        internalType: "address",
-        name: "beneficiary",
-        type: "address",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "number",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "bid",
+        "type": "uint256"
       },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "acquiredCollateral",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "challengeSize",
+        "type": "uint256"
+      }
     ],
-    name: "PostPonedReturn",
-    type: "event",
+    "name": "ChallengeSucceeded",
+    "type": "event"
   },
   {
-    inputs: [],
-    name: "CHALLENGER_REWARD",
-    outputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        internalType: "uint32",
-        name: "",
-        type: "uint32",
+        "indexed": false,
+        "internalType": "address",
+        "name": "pos",
+        "type": "address"
       },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "priceE36MinusDecimals",
+        "type": "uint256"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "name": "ForcedSale",
+    "type": "event"
   },
   {
-    inputs: [],
-    name: "OPENING_FEE",
-    outputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        "indexed": true,
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "position",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "original",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "collateral",
+        "type": "address"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "name": "PositionOpened",
+    "type": "event"
   },
   {
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        internalType: "uint32",
-        name: "_challengeNumber",
-        type: "uint32",
+        "indexed": false,
+        "internalType": "address",
+        "name": "collateral",
+        "type": "address"
       },
       {
-        internalType: "uint256",
-        name: "size",
-        type: "uint256",
+        "indexed": true,
+        "internalType": "address",
+        "name": "beneficiary",
+        "type": "address"
       },
       {
-        internalType: "bool",
-        name: "postponeCollateralReturn",
-        type: "bool",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
     ],
-    name: "bid",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "PostPonedReturn",
+    "type": "event"
   },
   {
-    inputs: [
+    "inputs": [],
+    "name": "CHALLENGER_REWARD",
+    "outputs": [
       {
-        internalType: "address",
-        name: "_positionAddr",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_collateralAmount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "expectedPrice",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    name: "challenge",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [],
+    "name": "EXPIRED_PRICE_FACTOR",
+    "outputs": [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    name: "challenges",
-    outputs: [
-      {
-        internalType: "address",
-        name: "challenger",
-        type: "address",
-      },
-      {
-        internalType: "uint64",
-        name: "start",
-        type: "uint64",
-      },
-      {
-        internalType: "contract IPosition",
-        name: "position",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "size",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [],
+    "name": "OPENING_FEE",
+    "outputs": [
       {
-        internalType: "address",
-        name: "position",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_initialCollateral",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_initialMint",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "expiration",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    name: "clone",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "_collateralAddress",
-        type: "address",
+        "internalType": "uint32",
+        "name": "_challengeNumber",
+        "type": "uint32"
       },
       {
-        internalType: "uint256",
-        name: "_minCollateral",
-        type: "uint256",
+        "internalType": "uint256",
+        "name": "size",
+        "type": "uint256"
       },
       {
-        internalType: "uint256",
-        name: "_initialCollateral",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_mintingMaximum",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_initPeriodSeconds",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_expirationSeconds",
-        type: "uint256",
-      },
-      {
-        internalType: "uint64",
-        name: "_challengeSeconds",
-        type: "uint64",
-      },
-      {
-        internalType: "uint32",
-        name: "_annualInterestPPM",
-        type: "uint32",
-      },
-      {
-        internalType: "uint256",
-        name: "_liqPrice",
-        type: "uint256",
-      },
-      {
-        internalType: "uint32",
-        name: "_reservePPM",
-        type: "uint32",
-      },
+        "internalType": "bool",
+        "name": "postponeCollateralReturn",
+        "type": "bool"
+      }
     ],
-    name: "openPosition",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "bid",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "_collateralAddress",
-        type: "address",
+        "internalType": "contract IPosition",
+        "name": "pos",
+        "type": "address"
       },
       {
-        internalType: "uint256",
-        name: "_minCollateral",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_initialCollateral",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_mintingMaximum",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_expirationSeconds",
-        type: "uint256",
-      },
-      {
-        internalType: "uint64",
-        name: "_challengeSeconds",
-        type: "uint64",
-      },
-      {
-        internalType: "uint32",
-        name: "_annualInterestPPM",
-        type: "uint32",
-      },
-      {
-        internalType: "uint256",
-        name: "_liqPrice",
-        type: "uint256",
-      },
-      {
-        internalType: "uint32",
-        name: "_reservePPM",
-        type: "uint32",
-      },
+        "internalType": "uint256",
+        "name": "upToAmount",
+        "type": "uint256"
+      }
     ],
-    name: "openPositionOneWeek",
-    outputs: [
+    "name": "buyExpiredCollateral",
+    "outputs": [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    stateMutability: "nonpayable",
-    type: "function",
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "collateral",
-        type: "address",
+        "internalType": "address",
+        "name": "_positionAddr",
+        "type": "address"
       },
       {
-        internalType: "address",
-        name: "owner",
-        type: "address",
+        "internalType": "uint256",
+        "name": "_collateralAmount",
+        "type": "uint256"
       },
+      {
+        "internalType": "uint256",
+        "name": "minimumPrice",
+        "type": "uint256"
+      }
     ],
-    name: "pendingReturns",
-    outputs: [
+    "name": "challenge",
+    "outputs": [
       {
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "uint32",
-        name: "challengeNumber",
-        type: "uint32",
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    name: "price",
-    outputs: [
+    "name": "challenges",
+    "outputs": [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
+        "internalType": "address",
+        "name": "challenger",
+        "type": "address"
       },
+      {
+        "internalType": "uint40",
+        "name": "start",
+        "type": "uint40"
+      },
+      {
+        "internalType": "contract IPosition",
+        "name": "position",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "size",
+        "type": "uint256"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "collateral",
-        type: "address",
+        "internalType": "address",
+        "name": "parent",
+        "type": "address"
       },
       {
-        internalType: "address",
-        name: "target",
-        type: "address",
+        "internalType": "uint256",
+        "name": "_initialCollateral",
+        "type": "uint256"
       },
+      {
+        "internalType": "uint256",
+        "name": "_initialMint",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint40",
+        "name": "expiration",
+        "type": "uint40"
+      }
     ],
-    name: "returnPostponedCollateral",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "clone",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "ofd",
-    outputs: [
+    "inputs": [
       {
-        internalType: "contract IFrankencoin",
-        name: "",
-        type: "address",
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
       },
+      {
+        "internalType": "address",
+        "name": "parent",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_initialCollateral",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_initialMint",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint40",
+        "name": "expiration",
+        "type": "uint40"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "name": "clone",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
+  {
+    "inputs": [
+      {
+        "internalType": "contract IPosition",
+        "name": "pos",
+        "type": "address"
+      }
+    ],
+    "name": "expiredPurchasePrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ofd",
+    "outputs": [
+      {
+        "internalType": "contract IOracleFreeDollar",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_collateralAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_minCollateral",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_initialCollateral",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_mintingMaximum",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint40",
+        "name": "_initPeriodSeconds",
+        "type": "uint40"
+      },
+      {
+        "internalType": "uint40",
+        "name": "_expirationSeconds",
+        "type": "uint40"
+      },
+      {
+        "internalType": "uint40",
+        "name": "_challengeSeconds",
+        "type": "uint40"
+      },
+      {
+        "internalType": "uint24",
+        "name": "_riskPremium",
+        "type": "uint24"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_liqPrice",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint24",
+        "name": "_reservePPM",
+        "type": "uint24"
+      }
+    ],
+    "name": "openPosition",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "pendingReturns",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "challengeNumber",
+        "type": "uint32"
+      }
+    ],
+    "name": "price",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "rate",
+    "outputs": [
+      {
+        "internalType": "contract ILeadrate",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "collateral",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "target",
+        "type": "address"
+      }
+    ],
+    "name": "returnPostponedCollateral",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "roller",
+    "outputs": [
+      {
+        "internalType": "contract PositionRoller",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
 ] as const;
