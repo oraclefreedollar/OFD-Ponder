@@ -17,7 +17,7 @@ export const CONFIG = {
     startOracleFreeDollar: 44643044,
     startMintingHub: 44662438,
     blockrange: 10000,
-    maxRequestsPerSecond: 5,
+    maxRequestsPerSecond: 50,
     pollingInterval: 5_000,
   },
   [bscTestnet.id]: {
@@ -25,7 +25,7 @@ export const CONFIG = {
     startOracleFreeDollar: 46176542,
     startMintingHub: 46177179,
     blockrange: undefined,
-    maxRequestsPerSecond: 5,
+    maxRequestsPerSecond: 25,
     pollingInterval: 5_000,
   },
 };
