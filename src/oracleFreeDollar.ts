@@ -11,7 +11,7 @@ ponder.on('OracleFreeDollar:Profit', async ({ event, context }) => {
     amount: 1n,
   }).onConflictDoUpdate((current)=> ({
     amount: current.amount + 1n,
-  }))
+  }));
 
   await database.insert(OFDPS).values({
     id: event.log.address,
@@ -20,14 +20,14 @@ ponder.on('OracleFreeDollar:Profit', async ({ event, context }) => {
     reserve: 0n,
   }).onConflictDoUpdate((current)=> ({
     profits: current.profits + event.args.amount,
-  }))
+  }));
 
   await database.insert(ActiveUser).values({
     id: event.transaction.from,
     lastActiveTime: event.block.timestamp,
   }).onConflictDoUpdate((current)=> ({
     lastActiveTime: event.block.timestamp,
-  }))
+  }));
 });
 
 ponder.on('OracleFreeDollar:Loss', async ({ event, context }) => {
@@ -39,7 +39,7 @@ ponder.on('OracleFreeDollar:Loss', async ({ event, context }) => {
     amount: 1n,
   }).onConflictDoUpdate((current)=> ({
     amount: current.amount + 1n,
-  }))
+  }));
 
   await database.insert(OFDPS).values({
     id: event.log.address,
@@ -48,14 +48,14 @@ ponder.on('OracleFreeDollar:Loss', async ({ event, context }) => {
     reserve: 0n,
   }).onConflictDoUpdate((current)=> ({
     loss: current.loss + event.args.amount,
-  }))
+  }));
 
   await database.insert(ActiveUser).values({
     id: event.transaction.from,
     lastActiveTime: event.block.timestamp,
   }).onConflictDoUpdate((current)=> ({
     lastActiveTime: event.block.timestamp,
-  }))
+  }));
 });
 
 ponder.on('OracleFreeDollar:MinterApplied', async ({ event, context }) => {
@@ -67,7 +67,7 @@ ponder.on('OracleFreeDollar:MinterApplied', async ({ event, context }) => {
     amount: 1n,
   }).onConflictDoUpdate((current)=> ({
     amount: current.amount + 1n,
-  }))
+  }));
 
   await database.insert(Minter).values({
     id: event.args.minter,
@@ -90,14 +90,14 @@ ponder.on('OracleFreeDollar:MinterApplied', async ({ event, context }) => {
     denyMessage: undefined,
     denyTxHash: undefined,
     vetor: undefined,
-  }))
+  }));
 
   await database.insert(ActiveUser).values({
     id: event.transaction.from,
     lastActiveTime: event.block.timestamp,
   }).onConflictDoUpdate((current)=> ({
     lastActiveTime: event.block.timestamp,
-  }))
+  }));
 });
 
 ponder.on('OracleFreeDollar:MinterDenied', async ({ event, context }) => {
@@ -109,21 +109,21 @@ ponder.on('OracleFreeDollar:MinterDenied', async ({ event, context }) => {
     amount: 1n,
   }).onConflictDoUpdate((current)=> ({
     amount: current.amount + 1n,
-  }))
+  }));
 
   await database.update(Minter, {id: event.args.minter}).set( (row) => ({
     denyMessage: event.args.message,
     denyDate: event.block.timestamp,
     denyTxHash: event.transaction.hash,
     vetor: event.transaction.from,
-  }))
+  }));
 
   await database.insert(ActiveUser).values({
     id: event.transaction.from,
     lastActiveTime: event.block.timestamp,
   }).onConflictDoUpdate((current)=> ({
     lastActiveTime: event.block.timestamp,
-  }))
+  }));
 });
 
 ponder.on('OracleFreeDollar:Transfer', async ({ event, context }) => {
@@ -153,7 +153,7 @@ ponder.on('OracleFreeDollar:Transfer', async ({ event, context }) => {
       amount: 1n,
     }).onConflictDoUpdate((current)=> ({
       amount: current.amount + 1n,
-    }))
+    }));
 
     await database.insert(Ecosystem).values({
       id: 'OracleFreeDollar:Mint',
@@ -161,7 +161,7 @@ ponder.on('OracleFreeDollar:Transfer', async ({ event, context }) => {
       amount: event.args.value,
     }).onConflictDoUpdate((current)=> ({
       amount: current.amount + event.args.value,
-    }))
+    }));
 
     await database.insert(MintBurnAddressMapper).values({
       id: event.args.to.toLowerCase(),
@@ -169,14 +169,14 @@ ponder.on('OracleFreeDollar:Transfer', async ({ event, context }) => {
       burn: 0n,
     }).onConflictDoUpdate((current)=> ({
       mint: current.mint + event.args.value,
-    }))
+    }));
 
     await database.insert(ActiveUser).values({
       id: event.transaction.to as Address,
       lastActiveTime: event.block.timestamp,
     }).onConflictDoUpdate((current)=> ({
       lastActiveTime: event.block.timestamp,
-    }))
+    }));
   }
 
   // emit Transfer(account, address(0), amount);
@@ -187,7 +187,7 @@ ponder.on('OracleFreeDollar:Transfer', async ({ event, context }) => {
       value: event.args.value,
       blockheight: event.block.number,
       timestamp: event.block.timestamp,
-    }).onConflictDoNothing()
+    }).onConflictDoNothing();
 
     await database.insert(Ecosystem).values({
       id: 'OracleFreeDollar:BurnCounter',
@@ -195,8 +195,7 @@ ponder.on('OracleFreeDollar:Transfer', async ({ event, context }) => {
       amount: 1n,
     }).onConflictDoUpdate((current)=> ({
       amount: current.amount + 1n,
-    }))
-
+    }));
 
     await database.insert(Ecosystem).values({
       id: 'OracleFreeDollar:Burn',
@@ -204,7 +203,7 @@ ponder.on('OracleFreeDollar:Transfer', async ({ event, context }) => {
       amount: event.args.value,
     }).onConflictDoUpdate((current)=> ({
       amount: current.amount + event.args.value,
-    }))
+    }));
 
     await database.insert(MintBurnAddressMapper).values({
       id: event.args.from.toLowerCase(),
@@ -212,13 +211,13 @@ ponder.on('OracleFreeDollar:Transfer', async ({ event, context }) => {
       burn: event.args.value,
     }).onConflictDoUpdate((current)=> ({
       burn: current.burn + event.args.value,
-    }))
+    }));
 
     await database.insert(ActiveUser).values({
       id: event.transaction.from,
       lastActiveTime: event.block.timestamp,
     }).onConflictDoUpdate((current)=> ({
       lastActiveTime: event.block.timestamp,
-    }))
+    }));
   }
 });

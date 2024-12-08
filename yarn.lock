@@ -535,7 +535,7 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@ponder/core@0.7":
+"@ponder/core@0.7.16":
   version "0.7.16"
   resolved "https://registry.yarnpkg.com/@ponder/core/-/core-0.7.16.tgz#c0987a7330d5a08a33afea9ffa73cf46d8b84e85"
   integrity sha512-L+buxLIz8dO2X50cOcQyf7JUrXraHfRHmzBPWkyFXwKnX/lwmSbI6LAZ9XhsS7nq/P5PKE9UaDHks3SzH5ze4g==

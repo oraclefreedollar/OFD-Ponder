@@ -1,10 +1,10 @@
-import { onchainTable } from "@ponder/core";
+import {onchainTable, primaryKey} from '@ponder/core'
 
 // -------------------------------------------------------------------------
 // ORACLEFREEDOLLAR
 // -------------------------------------------------------------------------
 
-export const Mint = onchainTable('oraclefreedollar_mint', (t) => ({
+export const Mint = onchainTable('mint', (t) => ({
   id: t.text().primaryKey(),
   to: t.text().notNull(),
   value: t.bigint().notNull(),
@@ -12,7 +12,7 @@ export const Mint = onchainTable('oraclefreedollar_mint', (t) => ({
   timestamp: t.bigint().notNull(),
 }));
 
-export const Burn = onchainTable('oraclefreedollar_burn', (t) => ({
+export const Burn = onchainTable('burn', (t) => ({
   id: t.text().primaryKey(),
   from: t.text().notNull(),
   value: t.bigint().notNull(),
@@ -20,13 +20,13 @@ export const Burn = onchainTable('oraclefreedollar_burn', (t) => ({
   timestamp: t.bigint().notNull(),
 }));
 
-export const MintBurnAddressMapper = onchainTable('oraclefreedollar_mintburnaddressmapper', (t) => ({
+export const MintBurnAddressMapper = onchainTable('mint_burn_address_mapper', (t) => ({
   id: t.text().primaryKey(),
   mint: t.bigint().notNull(),
   burn: t.bigint().notNull(),
 }));
 
-export const Minter = onchainTable('oraclefreedollar_minter', (t) => ({
+export const Minter = onchainTable('minter', (t) => ({
   id: t.text().primaryKey(),
   txHash: t.text().notNull(),
   minter: t.text().notNull(),
@@ -45,26 +45,26 @@ export const Minter = onchainTable('oraclefreedollar_minter', (t) => ({
 // OFDPS
 // -------------------------------------------------------------------------
 
-export const VotingPower = onchainTable('ofdps_votingpower', (t) => ({
+export const VotingPower = onchainTable('voting_power', (t) => ({
   id: t.text().primaryKey(),
   address: t.text().notNull(),
   votingPower: t.bigint().notNull(),
 }));
 
-export const OFDPS = onchainTable('ofdps_ofdps', (t) => ({
+export const OFDPS = onchainTable('ofdps', (t) => ({
   id: t.text().primaryKey(),
   profits: t.bigint().notNull(),
   loss: t.bigint().notNull(),
   reserve: t.bigint().notNull(),
 }));
 
-export const Delegation = onchainTable('ofdps_delegation', (t) => ({
+export const Delegation = onchainTable('delegation', (t) => ({
   id: t.text().primaryKey(),
   owner: t.text().notNull(),
   delegatedTo: t.text().notNull(),
 }));
 
-export const Trade = onchainTable('ofdps_trade', (t) => ({
+export const Trade = onchainTable('trade', (t) => ({
   id: t.text().primaryKey(),
   trader: t.text().notNull(),
   amount: t.bigint().notNull(),
@@ -73,7 +73,7 @@ export const Trade = onchainTable('ofdps_trade', (t) => ({
   time: t.bigint().notNull(),
 }));
 
-export const TradeChart = onchainTable('ofdps_tradechart', (t) => ({
+export const TradeChart = onchainTable('trade_chart', (t) => ({
   id: t.text().primaryKey(),
   time: t.bigint().notNull(),
   lastPrice: t.bigint().notNull(),
@@ -93,7 +93,7 @@ export const SavingsRateProposed = onchainTable('savings_rate_proposed', (t) => 
   nextChange: t.integer().notNull(),
 }));
 
-export const SavingsRateChanged = onchainTable('savings_rate_proposed', (t) => ({
+export const SavingsRateChanged = onchainTable('savings_rate_changed', (t) => ({
   id: t.text().primaryKey(),
   created: t.bigint().notNull(),
   blockheight: t.bigint().notNull(),
@@ -178,7 +178,7 @@ export const RollerRolled = onchainTable('roller_rolled', (t => ({
 // MINTINGHUB >>> V2 <<<
 // -------------------------------------------------------------------------
 
-export const Position = onchainTable('mintinghub_position', (t) => ({
+export const Position = onchainTable('position', (t) => ({
   id: t.text().primaryKey(),
   position: t.text().notNull(),
   owner: t.text().notNull(),
@@ -211,7 +211,7 @@ export const Position = onchainTable('mintinghub_position', (t) => ({
   minted: t.bigint().notNull(), // position minted amount
 }));
 
-export const MintingUpdate= onchainTable('mintinghub_update', (t) => ({
+export const MintingUpdate= onchainTable('minting_update', (t) => ({
   id: t.text().primaryKey(),
   txHash: t.text().notNull(),
   created: t.bigint().notNull(),
@@ -272,12 +272,12 @@ export const ChallengeBid = onchainTable('challenge_bid', (t) => ({
 // COMMON
 // -------------------------------------------------------------------------
 
-export const ActiveUser = onchainTable('common_activeuser', (t) => ({
+export const ActiveUser = onchainTable('active_user', (t) => ({
   id: t.text().primaryKey(),
   lastActiveTime: t.bigint().notNull(),
 }));
 
-export const Ecosystem = onchainTable('common_ecosystem', (t) => ({
+export const Ecosystem = onchainTable('ecosystem', (t) => ({
   id: t.text().primaryKey(),
   value: t.text().notNull(),
   amount: t.bigint().notNull(),

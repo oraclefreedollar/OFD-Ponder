@@ -15,7 +15,6 @@ ponder.on('Savings:RateProposed', async ({ event, context }) => {
     const { who, nextChange, nextRate } = event.args;
 
     // flat indexing
-
     await database.insert(SavingsRateProposed).values({
         id: `${who.toLowerCase()}-${event.block.number}`,
         created: event.block.timestamp,
@@ -85,7 +84,7 @@ ponder.on('Savings:Saved', async ({ event, context }) => {
         rate: ratePPM,
         total: latestSaved ? latestSaved.amount : amount,
         balance,
-    });
+    }).onConflictDoNothing();
 
     // ecosystem
     await database.insert(Ecosystem).values({
@@ -143,7 +142,7 @@ ponder.on('Savings:InterestCollected', async ({ event, context }) => {
         rate: ratePPM,
         total: latestInterest ? latestInterest.amount : interest,
         balance,
-    });
+    }).onConflictDoNothing();
 
     // ecosystem
 
@@ -201,7 +200,7 @@ ponder.on('Savings:Withdrawn', async ({ event, context }) => {
         rate: ratePPM,
         total: latestWithdraw ? latestWithdraw.amount : amount,
         balance,
-    });
+    }).onConflictDoNothing();
 
     // ecosystem
     await database.insert(Ecosystem).values({

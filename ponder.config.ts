@@ -7,19 +7,6 @@ import { bsc, bscTestnet, polygon } from 'viem/chains'
 import { ADDRESS } from "./ponder.address";
 import { ABIs } from 'abis'
 
-// const chain = bsc;
-
-// const CONFIG = {
-//   [bsc.id]: {
-//     rpc: process.env.PONDER_RPC_URL_1 ?? bsc.rpcUrls.default.http[0],
-//     startBlockA: 37881973,
-//     startBlockB: 37882077,
-//     blockrange: 10000,
-//     maxRequestsPerSecond: 5,
-//     pollingInterval: 5_000,
-//   },
-// };
-
 export const chain = (process.env.PONDER_PROFILE as string) == 'dev' ? bscTestnet : bsc;
 export const Id = chain.id!;
 export const ADDR = ADDRESS[chain.id]!;
@@ -38,7 +25,7 @@ export const CONFIG = {
     startOracleFreeDollar: 46176542,
     startMintingHub: 46177179,
     blockrange: undefined,
-    //maxRequestsPerSecond: 5,
+    maxRequestsPerSecond: 5,
     pollingInterval: 5_000,
   },
 };
@@ -60,10 +47,6 @@ export default createConfig({
       pollingInterval: CONFIG[Id].pollingInterval,
       transport: http(CONFIG[Id].rpc),
     },
-  },
-  database: {
-    kind: "pglite",
-    directory: "./.ponder/pglite",
   },
   contracts: {
     OracleFreeDollar: {
