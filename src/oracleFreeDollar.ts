@@ -1,289 +1,224 @@
 import { ponder } from "@/generated";
 import { Address, zeroAddress } from 'viem';
+import {ActiveUser, Burn, Ecosystem, Mint, MintBurnAddressMapper, Minter, OFDPS} from '../ponder.schema'
 
 ponder.on('OracleFreeDollar:Profit', async ({ event, context }) => {
-  const { OFDPS, ActiveUser, Ecosystem } = context.db;
+  const database = context.db;
 
-  await Ecosystem.upsert({
+  await database.insert(Ecosystem).values({
     id: 'Equity:ProfitCounter',
-    create: {
-      value: '',
-      amount: 1n,
-    },
-    update: ({ current }) => ({
-      amount: current.amount + 1n,
-    }),
-  });
+    value: '',
+    amount: 1n,
+  }).onConflictDoUpdate((current)=> ({
+    amount: current.amount + 1n,
+  }))
 
-  await OFDPS.upsert({
+  await database.insert(OFDPS).values({
     id: event.log.address,
-    create: {
-      profits: event.args.amount,
-      loss: 0n,
-      reserve: 0n,
-    },
-    update: ({ current }) => ({
-      profits: current.profits + event.args.amount,
-    }),
-  });
+    profits: event.args.amount,
+    loss: 0n,
+    reserve: 0n,
+  }).onConflictDoUpdate((current)=> ({
+    profits: current.profits + event.args.amount,
+  }))
 
-  await ActiveUser.upsert({
+  await database.insert(ActiveUser).values({
     id: event.transaction.from,
-    create: {
-      lastActiveTime: event.block.timestamp,
-    },
-    update: () => ({
-      lastActiveTime: event.block.timestamp,
-    }),
-  });
+    lastActiveTime: event.block.timestamp,
+  }).onConflictDoUpdate((current)=> ({
+    lastActiveTime: event.block.timestamp,
+  }))
 });
 
 ponder.on('OracleFreeDollar:Loss', async ({ event, context }) => {
-  const { OFDPS, ActiveUser, Ecosystem } = context.db;
+  const database = context.db;
 
-  await Ecosystem.upsert({
+  await database.insert(Ecosystem).values({
     id: 'Equity:LossCounter',
-    create: {
-      value: '',
-      amount: 1n,
-    },
-    update: ({ current }) => ({
-      amount: current.amount + 1n,
-    }),
-  });
+    value: '',
+    amount: 1n,
+  }).onConflictDoUpdate((current)=> ({
+    amount: current.amount + 1n,
+  }))
 
-  await OFDPS.upsert({
+  await database.insert(OFDPS).values({
     id: event.log.address,
-    create: {
-      profits: 0n,
-      loss: event.args.amount,
-      reserve: 0n,
-    },
-    update: ({ current }) => ({
-      loss: current.loss + event.args.amount,
-    }),
-  });
+    profits: 0n,
+    loss: event.args.amount,
+    reserve: 0n,
+  }).onConflictDoUpdate((current)=> ({
+    loss: current.loss + event.args.amount,
+  }))
 
-  await ActiveUser.upsert({
+  await database.insert(ActiveUser).values({
     id: event.transaction.from,
-    create: {
-      lastActiveTime: event.block.timestamp,
-    },
-    update: () => ({
-      lastActiveTime: event.block.timestamp,
-    }),
-  });
+    lastActiveTime: event.block.timestamp,
+  }).onConflictDoUpdate((current)=> ({
+    lastActiveTime: event.block.timestamp,
+  }))
 });
 
 ponder.on('OracleFreeDollar:MinterApplied', async ({ event, context }) => {
-  const { Minter, ActiveUser, Ecosystem } = context.db;
+  const database = context.db;
 
-  await Ecosystem.upsert({
+  await database.insert(Ecosystem).values({
     id: 'OracleFreeDollar:MinterAppliedCounter',
-    create: {
-      value: '',
-      amount: 1n,
-    },
-    update: ({ current }) => ({
-      amount: current.amount + 1n,
-    }),
-  });
+    value: '',
+    amount: 1n,
+  }).onConflictDoUpdate((current)=> ({
+    amount: current.amount + 1n,
+  }))
 
-  await Minter.upsert({
+  await database.insert(Minter).values({
     id: event.args.minter,
-    create: {
-      txHash: event.transaction.hash,
-      minter: event.args.minter,
-      applicationPeriod: event.args.applicationPeriod,
-      applicationFee: event.args.applicationFee,
-      applyMessage: event.args.message,
-      applyDate: event.block.timestamp,
-      suggestor: event.transaction.from,
-    },
-    update: ({ current }) => ({
-      txHash: event.transaction.hash,
-      minter: event.args.minter,
-      applicationPeriod: event.args.applicationPeriod,
-      applicationFee: event.args.applicationFee,
-      applyMessage: event.args.message,
-      applyDate: event.block.timestamp,
-      suggestor: event.transaction.from,
-      denyDate: undefined,
-      denyMessage: undefined,
-      denyTxHash: undefined,
-      vetor: undefined,
-    }),
-  });
+    txHash: event.transaction.hash,
+    minter: event.args.minter,
+    applicationPeriod: event.args.applicationPeriod,
+    applicationFee: event.args.applicationFee,
+    applyMessage: event.args.message,
+    applyDate: event.block.timestamp,
+    suggestor: event.transaction.from,
+  }).onConflictDoUpdate((current)=> ({
+    txHash: event.transaction.hash,
+    minter: event.args.minter,
+    applicationPeriod: event.args.applicationPeriod,
+    applicationFee: event.args.applicationFee,
+    applyMessage: event.args.message,
+    applyDate: event.block.timestamp,
+    suggestor: event.transaction.from,
+    denyDate: undefined,
+    denyMessage: undefined,
+    denyTxHash: undefined,
+    vetor: undefined,
+  }))
 
-  await ActiveUser.upsert({
+  await database.insert(ActiveUser).values({
     id: event.transaction.from,
-    create: {
-      lastActiveTime: event.block.timestamp,
-    },
-    update: () => ({
-      lastActiveTime: event.block.timestamp,
-    }),
-  });
+    lastActiveTime: event.block.timestamp,
+  }).onConflictDoUpdate((current)=> ({
+    lastActiveTime: event.block.timestamp,
+  }))
 });
 
 ponder.on('OracleFreeDollar:MinterDenied', async ({ event, context }) => {
-  const { Minter, ActiveUser, Ecosystem } = context.db;
+  const database = context.db;
 
-  await Ecosystem.upsert({
+  await database.insert(Ecosystem).values({
     id: 'OracleFreeDollar:MinterDeniedCounter',
-    create: {
-      value: '',
-      amount: 1n,
-    },
-    update: ({ current }) => ({
-      amount: current.amount + 1n,
-    }),
-  });
+    value: '',
+    amount: 1n,
+  }).onConflictDoUpdate((current)=> ({
+    amount: current.amount + 1n,
+  }))
 
-  await Minter.update({
-    id: event.args.minter,
-    data: {
-      denyMessage: event.args.message,
-      denyDate: event.block.timestamp,
-      denyTxHash: event.transaction.hash,
-      vetor: event.transaction.from,
-    },
-  });
+  await database.update(Minter, {id: event.args.minter}).set( (row) => ({
+    denyMessage: event.args.message,
+    denyDate: event.block.timestamp,
+    denyTxHash: event.transaction.hash,
+    vetor: event.transaction.from,
+  }))
 
-  await ActiveUser.upsert({
+  await database.insert(ActiveUser).values({
     id: event.transaction.from,
-    create: {
-      lastActiveTime: event.block.timestamp,
-    },
-    update: () => ({
-      lastActiveTime: event.block.timestamp,
-    }),
-  });
+    lastActiveTime: event.block.timestamp,
+  }).onConflictDoUpdate((current)=> ({
+    lastActiveTime: event.block.timestamp,
+  }))
 });
 
 ponder.on('OracleFreeDollar:Transfer', async ({ event, context }) => {
-  const { Mint, Burn, MintBurnAddressMapper, ActiveUser, Ecosystem } = context.db;
+  const database = context.db;
 
-  await Ecosystem.upsert({
+  await database.insert(Ecosystem).values({
     id: 'OracleFreeDollar:TransferCounter',
-    create: {
-      value: '',
-      amount: 1n,
-    },
-    update: ({ current }) => ({
-      amount: current.amount + 1n,
-    }),
-  });
+    value: '',
+    amount: 1n,
+  }).onConflictDoUpdate((current)=> ({
+    amount: current.amount + 1n,
+  }))
 
   // emit Transfer(address(0), recipient, amount);
   if (event.args.from === zeroAddress) {
-    await Mint.create({
+    await database.insert(Mint).values({
       id: `${event.args.to}-mint-${event.block.number}`,
-      data: {
-        to: event.args.to,
-        value: event.args.value,
-        blockheight: event.block.number,
-        timestamp: event.block.timestamp,
-      },
-    });
+      to: event.args.to,
+      value: event.args.value,
+      blockheight: event.block.number,
+      timestamp: event.block.timestamp,
+    }).onConflictDoNothing()
 
-    await Ecosystem.upsert({
+    await database.insert(Ecosystem).values({
       id: 'OracleFreeDollar:MintCounter',
-      create: {
-        value: '',
-        amount: 1n,
-      },
-      update: ({ current }) => ({
-        amount: current.amount + 1n,
-      }),
-    });
+      value: '',
+      amount: 1n,
+    }).onConflictDoUpdate((current)=> ({
+      amount: current.amount + 1n,
+    }))
 
-    await Ecosystem.upsert({
+    await database.insert(Ecosystem).values({
       id: 'OracleFreeDollar:Mint',
-      create: {
-        value: '',
-        amount: event.args.value,
-      },
-      update: ({ current }) => ({
-        amount: current.amount + event.args.value,
-      }),
-    });
+      value: '',
+      amount: event.args.value,
+    }).onConflictDoUpdate((current)=> ({
+      amount: current.amount + event.args.value,
+    }))
 
-    await MintBurnAddressMapper.upsert({
+    await database.insert(MintBurnAddressMapper).values({
       id: event.args.to.toLowerCase(),
-      create: {
-        mint: event.args.value,
-        burn: 0n,
-      },
-      update: ({ current }) => ({
-        mint: current.mint + event.args.value,
-      }),
-    });
+      mint: event.args.value,
+      burn: 0n,
+    }).onConflictDoUpdate((current)=> ({
+      mint: current.mint + event.args.value,
+    }))
 
-    await ActiveUser.upsert({
+    await database.insert(ActiveUser).values({
       id: event.transaction.to as Address,
-      create: {
-        lastActiveTime: event.block.timestamp,
-      },
-      update: () => ({
-        lastActiveTime: event.block.timestamp,
-      }),
-    });
+      lastActiveTime: event.block.timestamp,
+    }).onConflictDoUpdate((current)=> ({
+      lastActiveTime: event.block.timestamp,
+    }))
   }
 
   // emit Transfer(account, address(0), amount);
   if (event.args.to === zeroAddress) {
-    await Burn.create({
+    await database.insert(Burn).values({
       id: `${event.args.from}-burn-${event.block.number}`,
-      data: {
-        from: event.args.from,
-        value: event.args.value,
-        blockheight: event.block.number,
-        timestamp: event.block.timestamp,
-      },
-    });
+      from: event.args.from,
+      value: event.args.value,
+      blockheight: event.block.number,
+      timestamp: event.block.timestamp,
+    }).onConflictDoNothing()
 
-    await Ecosystem.upsert({
+    await database.insert(Ecosystem).values({
       id: 'OracleFreeDollar:BurnCounter',
-      create: {
-        value: '',
-        amount: 1n,
-      },
-      update: ({ current }) => ({
-        amount: current.amount + 1n,
-      }),
-    });
+      value: '',
+      amount: 1n,
+    }).onConflictDoUpdate((current)=> ({
+      amount: current.amount + 1n,
+    }))
 
-    await Ecosystem.upsert({
+
+    await database.insert(Ecosystem).values({
       id: 'OracleFreeDollar:Burn',
-      create: {
-        value: '',
-        amount: event.args.value,
-      },
-      update: ({ current }) => ({
-        amount: current.amount + event.args.value,
-      }),
-    });
+      value: '',
+      amount: event.args.value,
+    }).onConflictDoUpdate((current)=> ({
+      amount: current.amount + event.args.value,
+    }))
 
-    await MintBurnAddressMapper.upsert({
+    await database.insert(MintBurnAddressMapper).values({
       id: event.args.from.toLowerCase(),
-      create: {
-        mint: 0n,
-        burn: event.args.value,
-      },
-      update: ({ current }) => ({
-        burn: current.burn + event.args.value,
-      }),
-    });
+      mint: 0n,
+      burn: event.args.value,
+    }).onConflictDoUpdate((current)=> ({
+      burn: current.burn + event.args.value,
+    }))
 
-    await ActiveUser.upsert({
+    await database.insert(ActiveUser).values({
       id: event.transaction.from,
-      create: {
-        lastActiveTime: event.block.timestamp,
-      },
-      update: () => ({
-        lastActiveTime: event.block.timestamp,
-      }),
-    });
+      lastActiveTime: event.block.timestamp,
+    }).onConflictDoUpdate((current)=> ({
+      lastActiveTime: event.block.timestamp,
+    }))
   }
 });
