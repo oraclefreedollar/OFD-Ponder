@@ -1,281 +1,284 @@
-import { createSchema } from "@ponder/core";
+import { onchainTable } from "@ponder/core";
 
-export default createSchema((p) => ({
-  // -------------------------------------------------------------------------
-  // ORACLEFREEDOLLAR
-  // -------------------------------------------------------------------------
-  Mint: p.createTable({
-    id: p.string(),
-    to: p.string(),
-    value: p.bigint(),
-    blockheight: p.bigint(),
-    timestamp: p.bigint(),
-  }),
+// -------------------------------------------------------------------------
+// ORACLEFREEDOLLAR
+// -------------------------------------------------------------------------
 
-  Burn: p.createTable({
-    id: p.string(),
-    from: p.string(),
-    value: p.bigint(),
-    blockheight: p.bigint(),
-    timestamp: p.bigint(),
-  }),
+export const Mint = onchainTable('oraclefreedollar_mint', (t) => ({
+  id: t.text().primaryKey(),
+  to: t.text().notNull(),
+  value: t.bigint().notNull(),
+  blockheight: t.bigint().notNull(),
+  timestamp: t.bigint().notNull(),
+}));
 
-  MintBurnAddressMapper: p.createTable({
-    id: p.string(),
-    mint: p.bigint(),
-    burn: p.bigint(),
-  }),
+export const Burn = onchainTable('oraclefreedollar_burn', (t) => ({
+  id: t.text().primaryKey(),
+  from: t.text().notNull(),
+  value: t.bigint().notNull(),
+  blockheight: t.bigint().notNull(),
+  timestamp: t.bigint().notNull(),
+}));
 
-  Minter: p.createTable({
-    id: p.string(),
-    txHash: p.string(),
-    minter: p.string(),
-    applicationPeriod: p.bigint(),
-    applicationFee: p.bigint(),
-    applyMessage: p.string(),
-    applyDate: p.bigint(),
-    suggestor: p.string(),
-    denyMessage: p.string().optional(),
-    denyDate: p.bigint().optional(),
-    denyTxHash: p.string().optional(),
-    vetor: p.string().optional(),
-  }),
+export const MintBurnAddressMapper = onchainTable('oraclefreedollar_mintburnaddressmapper', (t) => ({
+  id: t.text().primaryKey(),
+  mint: t.bigint().notNull(),
+  burn: t.bigint().notNull(),
+}));
 
-  // -------------------------------------------------------------------------
-  // OFDPS
-  // -------------------------------------------------------------------------
-  VotingPower: p.createTable({
-    id: p.string(),
-    address: p.string(),
-    votingPower: p.bigint(),
-  }),
+export const Minter = onchainTable('oraclefreedollar_minter', (t) => ({
+  id: t.text().primaryKey(),
+  txHash: t.text().notNull(),
+  minter: t.text().notNull(),
+  applicationPeriod: t.bigint().notNull(),
+  applicationFee: t.bigint().notNull(),
+  applyMessage: t.text().notNull(),
+  applyDate: t.bigint().notNull(),
+  suggestor: t.text().notNull(),
+  denyMessage: t.text(), // optional field
+  denyDate: t.bigint(), // optional field
+  denyTxHash: t.text(), // optional field
+  vetor: t.text(), // optional field
+}));
 
-  OFDPS: p.createTable({
-    id: p.string(),
-    profits: p.bigint(),
-    loss: p.bigint(),
-    reserve: p.bigint(),
-  }),
+// -------------------------------------------------------------------------
+// OFDPS
+// -------------------------------------------------------------------------
 
-  Delegation: p.createTable({
-    id: p.string(),
-    owner: p.string(),
-    delegatedTo: p.string(),
-  }),
+export const VotingPower = onchainTable('ofdps_votingpower', (t) => ({
+  id: t.text().primaryKey(),
+  address: t.text().notNull(),
+  votingPower: t.bigint().notNull(),
+}));
 
-  Trade: p.createTable({
-    id: p.string(),
-    trader: p.string(),
-    amount: p.bigint(),
-    shares: p.bigint(),
-    price: p.bigint(),
-    time: p.bigint(),
-  }),
+export const OFDPS = onchainTable('ofdps_ofdps', (t) => ({
+  id: t.text().primaryKey(),
+  profits: t.bigint().notNull(),
+  loss: t.bigint().notNull(),
+  reserve: t.bigint().notNull(),
+}));
 
-  TradeChart: p.createTable({
-    id: p.string(),
-    time: p.bigint(),
-    lastPrice: p.bigint(),
-  }),
+export const Delegation = onchainTable('ofdps_delegation', (t) => ({
+  id: t.text().primaryKey(),
+  owner: t.text().notNull(),
+  delegatedTo: t.text().notNull(),
+}));
 
-  // -------------------------------------------------------------------------
-  // MINTINGHUB >>> V2 Utils <<< SAVINGS AND ROLLER
-  // -------------------------------------------------------------------------
-  SavingsRateProposed: p.createTable({
-    id: p.string(),
-    created: p.bigint(),
-    blockheight: p.bigint(),
-    txHash: p.string(),
-    proposer: p.string(),
-    nextRate: p.int(),
-    nextChange: p.int(),
-  }),
+export const Trade = onchainTable('ofdps_trade', (t) => ({
+  id: t.text().primaryKey(),
+  trader: t.text().notNull(),
+  amount: t.bigint().notNull(),
+  shares: t.bigint().notNull(),
+  price: t.bigint().notNull(),
+  time: t.bigint().notNull(),
+}));
 
-  SavingsRateChanged: p.createTable({
-    id: p.string(),
-    created: p.bigint(),
-    blockheight: p.bigint(),
-    txHash: p.string(),
-    approvedRate: p.int(),
-  }),
+export const TradeChart = onchainTable('ofdps_tradechart', (t) => ({
+  id: t.text().primaryKey(),
+  time: t.bigint().notNull(),
+  lastPrice: t.bigint().notNull(),
+}));
 
-  SavingsSaved: p.createTable({
-    id: p.string(),
-    created: p.bigint(),
-    blockheight: p.bigint(),
-    txHash: p.string(),
-    account: p.string(),
-    amount: p.bigint(),
-    rate: p.int(),
-    total: p.bigint(),
-    balance: p.bigint(),
-  }),
+// -------------------------------------------------------------------------
+// MINTINGHUB >>> V2 Utils <<< SAVINGS AND ROLLER
+// -------------------------------------------------------------------------
 
-  SavingsSavedMapping: p.createTable({
-    id: p.string(), // address in lower case
-    created: p.bigint(), // first timestamp
-    blockheight: p.bigint(), // first blockheight
-    updated: p.bigint(), // latest timestamp
-    amount: p.bigint(), // total amount
-  }),
+export const SavingsRateProposed = onchainTable('savings_rate_proposed', (t) => ({
+  id: t.text().primaryKey(),
+  created: t.bigint().notNull(),
+  blockheight: t.bigint().notNull(),
+  txHash: t.text().notNull(),
+  proposer: t.text().notNull(),
+  nextRate: t.integer().notNull(),
+  nextChange: t.integer().notNull(),
+}));
 
-  SavingsInterest: p.createTable({
-    id: p.string(),
-    created: p.bigint(),
-    blockheight: p.bigint(),
-    txHash: p.string(),
-    account: p.string(),
-    amount: p.bigint(),
-    rate: p.int(),
-    total: p.bigint(),
-    balance: p.bigint(),
-  }),
+export const SavingsRateChanged = onchainTable('savings_rate_proposed', (t) => ({
+  id: t.text().primaryKey(),
+  created: t.bigint().notNull(),
+  blockheight: t.bigint().notNull(),
+  txHash: t.text().notNull(),
+  approvedRate: t.integer().notNull(),
+}));
 
-  SavingsInterestMapping: p.createTable({
-    id: p.string(),
-    created: p.bigint(),
-    blockheight: p.bigint(),
-    updated: p.bigint(),
-    amount: p.bigint(),
-  }),
+export const SavingsSaved = onchainTable('savings_saved', (t) => ({
+  id: t.text().primaryKey(),
+  created: t.bigint().notNull(),
+  blockheight: t.bigint().notNull(),
+  txHash: t.text().notNull(),
+  account: t.text().notNull(),
+  amount: t.bigint().notNull(),
+  rate: t.integer().notNull(),
+  total: t.bigint().notNull(),
+  balance: t.bigint().notNull(),
+}));
 
-  SavingsWithdrawn: p.createTable({
-    id: p.string(),
-    created: p.bigint(),
-    blockheight: p.bigint(),
-    txHash: p.string(),
-    account: p.string(),
-    amount: p.bigint(),
-    rate: p.int(),
-    total: p.bigint(),
-    balance: p.bigint(),
-  }),
+export const SavingsSavedMapping = onchainTable('savings_saved_mapping', (t) => ({
+  id: t.text().primaryKey(), // address in lower case
+  created: t.bigint().notNull(), // first timestamp
+  blockheight: t.bigint().notNull(), // first blockheight
+  updated: t.bigint().notNull(), // latest timestamp
+  amount: t.bigint().notNull(), // total amount
+}));
 
-  SavingsWithdrawnMapping: p.createTable({
-    id: p.string(),
-    created: p.bigint(),
-    blockheight: p.bigint(),
-    updated: p.bigint(),
-    amount: p.bigint(),
-  }),
+export const SavingsInterest = onchainTable('savings_interest', (t) => ({
+  id: t.text().primaryKey(),
+  created: t.bigint().notNull(),
+  blockheight: t.bigint().notNull(),
+  txHash: t.text().notNull(),
+  account: t.text().notNull(),
+  amount: t.bigint().notNull(),
+  rate: t.integer().notNull(),
+  total: t.bigint().notNull(),
+  balance: t.bigint().notNull(),
+}));
 
-  RollerRolled: p.createTable({
-    id: p.string(),
-    created: p.bigint(),
-    blockheight: p.bigint(),
-    owner: p.string(),
-    source: p.string(),
-    collWithdraw: p.bigint(),
-    repay: p.bigint(),
-    target: p.string(),
-    collDeposit: p.bigint(),
-    mint: p.bigint(),
-  }),
+export const SavingsInterestMapping = onchainTable('savings_interest_mapping', (t) => ({
+  id: t.text().primaryKey(),
+  created: t.bigint().notNull(),
+  blockheight: t.bigint().notNull(),
+  updated: t.bigint().notNull(),
+  amount: t.bigint().notNull(),
+}));
 
-  // -------------------------------------------------------------------------
-  // MINTINGHUB >>> V2 <<<
-  // -------------------------------------------------------------------------
-  Position: p.createTable({
-    id: p.string(),
-    position: p.string(),
-    owner: p.string(),
-    ofd: p.string(),
-    collateral: p.string(),
-    price: p.bigint(),
-    created: p.bigint(), // block timestamp when position was created
-    isOriginal: p.boolean(),
-    isClone: p.boolean(),
-    denied: p.boolean(),
-    closed: p.boolean(),
-    original: p.string(),
-    minimumCollateral: p.bigint(),
-    riskPremiumPPM: p.int(),
-    reserveContribution: p.int(),
-    start: p.int(),
-    cooldown: p.bigint(),
-    expiration: p.int(),
-    challengePeriod: p.int(),
-    ofdName: p.string(),
-    ofdSymbol: p.string(),
-    ofdDecimals: p.int(),
-    collateralName: p.string(),
-    collateralSymbol: p.string(),
-    collateralDecimals: p.int(),
-    collateralBalance: p.bigint(),
-    limitForClones: p.bigint(), // global limit for position and their clones
-    availableForClones: p.bigint(), // for positions or clones for further clones
-    availableForMinting: p.bigint(), // "unlocked" to mint for position
-    minted: p.bigint(), // position minted amount
-  }),
+export const SavingsWithdrawn = onchainTable('savings_withdrawn', (t => ({
+  id: t.text().primaryKey(),
+  created: t.bigint().notNull(),
+  blockheight: t.bigint().notNull(),
+  txHash: t.text().notNull(),
+  account: t.text().notNull(),
+  amount: t.bigint().notNull(),
+  rate: t.integer().notNull(),
+  total: t.bigint().notNull(),
+  balance: t.bigint().notNull(),
+})));
 
-  MintingUpdate: p.createTable({
-    id: p.string(),
-    txHash: p.string(),
-    created: p.bigint(),
-    position: p.string(),
-    owner: p.string(),
-    isClone: p.boolean(),
-    collateral: p.string(),
-    collateralName: p.string(),
-    collateralSymbol: p.string(),
-    collateralDecimals: p.int(),
-    size: p.bigint(),
-    price: p.bigint(),
-    minted: p.bigint(),
-    sizeAdjusted: p.bigint(),
-    priceAdjusted: p.bigint(),
-    mintedAdjusted: p.bigint(),
-    annualInterestPPM: p.int(),
-    basePremiumPPM: p.int(),
-    riskPremiumPPM: p.int(),
-    reserveContribution: p.int(),
-    feeTimeframe: p.int(),
-    feePPM: p.int(),
-    feePaid: p.bigint(),
-  }),
+export const SavingsWithdrawnMapping = onchainTable('savings_withdrawn_mapping', (t => ({
+  id: t.text().primaryKey(),
+  created: t.bigint().notNull(),
+  blockheight: t.bigint().notNull(),
+  updated: t.bigint().notNull(),
+  amount: t.bigint().notNull(),
+})));
 
-  Challenge: p.createTable({
-    id: p.string(), // e.g. 0x5d0e66DC411FEfBE9cAe9CE56dA9BCE8C027f492-challenge-2
-    position: p.string(), // position being challenged
-    number: p.bigint(), // number of the challenge in minting hub
-    challenger: p.string(),
-    start: p.int(), // timestamp for start of challenge
-    created: p.bigint(), // block timestamp when challenge was created
-    duration: p.int(),
-    size: p.bigint(), // size of the challenge, set by the challenger
-    liqPrice: p.bigint(), // trigger price for challenge
-    bids: p.bigint(), // number of bids, starting with 0
-    filledSize: p.bigint(), // accumulated bids amounts, set by the bidders
-    acquiredCollateral: p.bigint(), // total amount of collateral acquired, set by the bidders
-    status: p.string(), // status: "Active" | "Success"
-  }),
+export const RollerRolled = onchainTable('roller_rolled', (t => ({
+  id: t.text().primaryKey(),
+  created: t.bigint().notNull(),
+  blockheight: t.bigint().notNull(),
+  owner: t.text().notNull(),
+  source: t.text().notNull(),
+  collWithdraw: t.bigint().notNull(),
+  repay: t.bigint().notNull(),
+  target: t.text().notNull(),
+  collDeposit: t.bigint().notNull(),
+  mint: t.bigint().notNull(),
+})));
 
-  ChallengeBid: p.createTable({
-    id: p.string(), // e.g. 0x5d0e66DC411FEfBE9cAe9CE56dA9BCE8C027f492-challenge-2-bid-0
-    position: p.string(),
-    number: p.bigint(),
-    numberBid: p.bigint(),
-    bidder: p.string(),
-    created: p.bigint(), // block timestamp when bid was created
-    bidType: p.string(), // "Averted" | "Succeeded"
-    bid: p.bigint(), // bid amount
-    price: p.bigint(), // bid price
-    filledSize: p.bigint(),
-    acquiredCollateral: p.bigint(),
-    challengeSize: p.bigint(),
-  }),
+// -------------------------------------------------------------------------
+// MINTINGHUB >>> V2 <<<
+// -------------------------------------------------------------------------
 
-  // -------------------------------------------------------------------------
-  // COMMON
-  // -------------------------------------------------------------------------
-  ActiveUser: p.createTable({
-    id: p.string(),
-    lastActiveTime: p.bigint(),
-  }),
+export const Position = onchainTable('mintinghub_position', (t) => ({
+  id: t.text().primaryKey(),
+  position: t.text().notNull(),
+  owner: t.text().notNull(),
+  ofd: t.text().notNull(),
+  collateral: t.text().notNull(),
+  price: t.bigint().notNull(),
+  created: t.bigint().notNull(),
+  isOriginal: t.boolean().notNull(),
+  isClone: t.boolean().notNull(),
+  denied: t.boolean().notNull(),
+  closed: t.boolean().notNull(),
+  original: t.text().notNull(),
+  minimumCollateral: t.bigint().notNull(),
+  riskPremiumPPM: t.integer().notNull(),
+  reserveContribution: t.integer().notNull(),
+  start: t.integer().notNull(),
+  cooldown: t.bigint().notNull(),
+  expiration: t.integer().notNull(),
+  challengePeriod: t.integer().notNull(),
+  ofdName: t.text().notNull(),
+  ofdSymbol: t.text().notNull(),
+  ofdDecimals: t.integer().notNull(),
+  collateralName: t.text().notNull(),
+  collateralSymbol: t.text().notNull(),
+  collateralDecimals: t.integer().notNull(),
+  collateralBalance: t.bigint().notNull(),
+  limitForClones: t.bigint().notNull(), // global limit for position and their clones
+  availableForClones: t.bigint().notNull(), // for positions or clones for further clones
+  availableForMinting: t.bigint().notNull(), // "unlocked" to mint for position
+  minted: t.bigint().notNull(), // position minted amount
+}));
 
-  Ecosystem: p.createTable({
-    id: p.string(),
-    value: p.string(),
-    amount: p.bigint(),
-  }),
+export const MintingUpdate= onchainTable('mintinghub_update', (t) => ({
+  id: t.text().primaryKey(),
+  txHash: t.text().notNull(),
+  created: t.bigint().notNull(),
+  position: t.text().notNull(),
+  owner: t.text().notNull(),
+  isClone: t.boolean().notNull(),
+  collateral: t.text().notNull(),
+  collateralName: t.text().notNull(),
+  collateralSymbol: t.text().notNull(),
+  collateralDecimals: t.integer().notNull(),
+  size: t.bigint().notNull(),
+  price: t.bigint().notNull(),
+  minted: t.bigint().notNull(),
+  sizeAdjusted: t.bigint().notNull(),
+  priceAdjusted: t.bigint().notNull(),
+  mintedAdjusted: t.bigint().notNull(),
+  annualInterestPPM: t.integer().notNull(),
+  basePremiumPPM: t.integer().notNull(),
+  riskPremiumPPM: t.integer().notNull(),
+  reserveContribution: t.integer().notNull(),
+  feeTimeframe: t.integer().notNull(),
+  feePPM: t.integer().notNull(),
+  feePaid: t.bigint().notNull(),
+}));
+
+export const Challenge= onchainTable('challenge', (t) => ({
+  id: t.text().primaryKey(), // e.g. 0x5d0e66DC411FEfBE9cAe9CE56dA9BCE8C027f492-challenge-2
+  position: t.text().notNull(), // position being challenged
+  number: t.bigint().notNull(), // number of the challenge in minting hub
+  challenger: t.text().notNull(),
+  start: t.integer().notNull(), // timestamp for start of challenge
+  created: t.bigint().notNull(), // block timestamp when challenge was created
+  duration: t.integer().notNull(),
+  size: t.bigint().notNull(), // size of the challenge, set by the challenger
+  liqPrice: t.bigint().notNull(), // trigger price for challenge
+  bids: t.bigint().notNull(), // number of bids, starting with 0
+  filledSize: t.bigint().notNull(), // accumulated bids amounts, set by the bidders
+  acquiredCollateral: t.bigint().notNull(), // total amount of collateral acquired, set by the bidders
+  status: t.text().notNull(), // status: "Active" | "Success"
+}));
+
+export const ChallengeBid = onchainTable('challenge_bid', (t) => ({
+  id: t.text().primaryKey(), // e.g. 0x5d0e66DC411FEfBE9cAe9CE56dA9BCE8C027f492-challenge-2-bid-0
+  position: t.text().notNull(),
+  number: t.bigint().notNull(),
+  numberBid: t.bigint().notNull(),
+  bidder: t.text().notNull(),
+  created: t.bigint().notNull(), // block timestamp when bid was created
+  bidType: t.text().notNull(), // "Averted" | "Succeeded"
+  bid: t.bigint().notNull(), // bid amount
+  price: t.bigint().notNull(), // bid price
+  filledSize: t.bigint().notNull(),
+  acquiredCollateral: t.bigint().notNull(),
+  challengeSize: t.bigint().notNull(),
+}));
+
+// -------------------------------------------------------------------------
+// COMMON
+// -------------------------------------------------------------------------
+
+export const ActiveUser = onchainTable('common_activeuser', (t) => ({
+  id: t.text().primaryKey(),
+  lastActiveTime: t.bigint().notNull(),
+}));
+
+export const Ecosystem = onchainTable('common_ecosystem', (t) => ({
+  id: t.text().primaryKey(),
+  value: t.text().notNull(),
+  amount: t.bigint().notNull(),
 }));
