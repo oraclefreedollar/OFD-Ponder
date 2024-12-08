@@ -1,5 +1,4 @@
 import { ponder } from '@/generated';
-import { ABIs } from '../abis';
 import { ADDR } from '../ponder.config';
 import { Address } from 'viem';
 import {

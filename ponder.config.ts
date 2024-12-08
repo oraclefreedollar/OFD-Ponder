@@ -38,7 +38,7 @@ export const CONFIG = {
     startOracleFreeDollar: 46176542,
     startMintingHub: 46177179,
     blockrange: undefined,
-    maxRequestsPerSecond: 5,
+    //maxRequestsPerSecond: 5,
     pollingInterval: 5_000,
   },
 };
@@ -60,6 +60,10 @@ export default createConfig({
       pollingInterval: CONFIG[Id].pollingInterval,
       transport: http(CONFIG[Id].rpc),
     },
+  },
+  database: {
+    kind: "pglite",
+    directory: "./.ponder/pglite",
   },
   contracts: {
     OracleFreeDollar: {
