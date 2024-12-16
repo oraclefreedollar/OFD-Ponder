@@ -7,13 +7,13 @@ export type AddressObject = {
 
 export const ADDRESS: AddressObject = {
   [bsc.id]: {
-    oracleFreeDollar: "0x1A3f933e13649472d354373eE88FA10E88c1795e",
-    bridge: "0xa40115628f38D5C6516e7A7ee6f423b6134B9e91",
+    oracleFreeDollar: "0xc97c78dbf7D51d50a8e3a423774ad6F921E9b599",
+    bridge: "0x2A864A8aD758deB139750548f252D07e1cA64E9C",
     usdt: "0x55d398326f99059fF775485246999027B3197955",
-    equity: "0xe910E600FfccfF8038A700908bdaE378484dc818",
-    mintingHub: "0x06371Ea7ddD65455680083075160610f61b059FC",
-    savings: "0x3db45a6c58D9419EB960ddD3470677fA2aBD8dF2",
-    roller: "0x79c5C359060c255E314c9B2643A86cb155DEbCc1",
+    equity: "0x49eA9f8A532f62e0972587704F59ee7364173419",
+    mintingHub: "0x3578dC0e62612d6c6cafec526ff6517c51128AeD",
+    savings: "0x9c8A9A2eB148703aF8e737De8A492b3C3A6540E3",
+    roller: "0x3C672bA969D4eD2f9F3F39eeE4Fdfb40fce1c8f9",
     // wFPS: "0x5052D3Cc819f53116641e89b96Ff4cD1EE80B182",
   },
   [bscTestnet.id]: {

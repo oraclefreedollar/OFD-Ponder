@@ -14,8 +14,8 @@ export const ADDR = ADDRESS[chain.id]!;
 export const CONFIG = {
   [bsc.id]: {
     rpc: process.env.PONDER_RPC_URL_1 ?? bsc.rpcUrls.default.http[0],
-    startOracleFreeDollar: 44643044,
-    startMintingHub: 44662438,
+    startOracleFreeDollar: 44762245,
+    startMintingHub: 44762344,
     blockrange: 10000,
     maxRequestsPerSecond: 50,
     pollingInterval: 5_000,
