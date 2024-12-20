@@ -35,7 +35,7 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
     functionName: 'currentRatePPM',
   });
 
-  const position = await database.find(Position, {id: positionAddress.toLowerCase()});
+  const position = await database.find(PositionSchema, {id: positionAddress.toLowerCase()});
 
   if (!position) throw new Error('Position unknown in MintingUpdate');
 
@@ -198,7 +198,7 @@ ponder.on('Position:OwnershipTransferred', async ({ event, context }) => {
       owner: event.args.newOwner,
     });
   }
-  
+
   await database.insert(ActiveUser).values({
       id: event.transaction.from,
       lastActiveTime: event.block.timestamp,

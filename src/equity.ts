@@ -85,10 +85,9 @@ ponder.on('Equity:Trade', async ({ event, context }) => {
     votingPower: current.votingPower + event.args.amount,
   }));
 
-  const startTime = (event.block.timestamp / 86400n) * 86400n;
   await database.insert(TradeChart).values({
-    id: startTime.toString(),
-    time: startTime,
+    id: time.toString(),
+    time,
     lastPrice: event.args.newprice,
     }).onConflictDoUpdate((current)=> ({
       lastPrice: event.args.newprice,
@@ -107,17 +106,9 @@ ponder.on('Equity:Transfer', async ({ event, context }) => {
 
   if (event.args.from == zeroAddress || event.args.to == zeroAddress) return;
 
-  // await VotingPower.update({
-  //   id: event.args.from,
-  //   data: ({ current }) => ({
-  //     votingPower: current.votingPower - event.args.value,
-  //   }),
-  // });
-
-  // TODO: check
   await database.update(VotingPower, {id: event.args.from}).set( (row) => {
     return {
-      votingPower: row.votingPower - event.args.value,
+      votingPower: row.votingPower - BigInt(event.args.value),
     }
   })
 
