@@ -55,7 +55,7 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
   await database.insert(Ecosystem).values({
     id: idEco,
     value: '',
-    amount: 0n,
+    amount: 1n,
   }).onConflictDoUpdate((current)=> ({
     amount: current.amount + 1n,
   }));
