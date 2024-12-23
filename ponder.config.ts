@@ -14,16 +14,16 @@ export const ADDR = ADDRESS[chain.id]!;
 export const CONFIG = {
   [bsc.id]: {
     rpc: process.env.PONDER_RPC_URL_1 ?? bsc.rpcUrls.default.http[0],
-    startOracleFreeDollar: 44762245,
-    startMintingHub: 44762344,
+    startOracleFreeDollar: 45094487,
+    startMintingHub: 45094649,
     blockrange: 10000,
     maxRequestsPerSecond: 50,
     pollingInterval: 5_000,
   },
   [bscTestnet.id]: {
     rpc: process.env.PONDER_RPC_URL_TESTNET ?? polygon.rpcUrls.default.http[0],
-    startOracleFreeDollar: 46176542,
-    startMintingHub: 46177179,
+    startOracleFreeDollar: 46376031,
+    startMintingHub: 46376356,
     blockrange: undefined,
     maxRequestsPerSecond: 25,
     pollingInterval: 5_000,
