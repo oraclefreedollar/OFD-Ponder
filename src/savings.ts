@@ -2,11 +2,14 @@ import { ponder } from '@/generated';
 import { ADDR } from '../ponder.config';
 import { Address } from 'viem';
 import {
-    Ecosystem, SavingsInterest,
+    Ecosystem,
+    SavingsInterest,
     SavingsInterestMapping,
     SavingsRateChanged,
-    SavingsRateProposed, SavingsSaved,
-    SavingsSavedMapping, SavingsWithdrawn,
+    SavingsRateProposed,
+    SavingsSaved,
+    SavingsSavedMapping,
+    SavingsWithdrawn,
     SavingsWithdrawnMapping
 } from '../ponder.schema'
 

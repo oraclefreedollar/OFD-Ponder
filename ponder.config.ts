@@ -13,20 +13,22 @@ export const ADDR = ADDRESS[chain.id]!;
 
 export const CONFIG = {
   [bsc.id]: {
-    rpc: process.env.PONDER_RPC_URL_1 ?? bsc.rpcUrls.default.http[0],
-    startOracleFreeDollar: 45094487,
-    startMintingHub: 45094649,
     blockrange: 10000,
     maxRequestsPerSecond: 50,
     pollingInterval: 5_000,
+    rpc: process.env.PONDER_RPC_URL_1 ?? bsc.rpcUrls.default.http[0],
+    startMintingHub: 45094649,
+    startOracleFreeDollar: 45094487,
+    startSavings: 45094581,
   },
   [bscTestnet.id]: {
-    rpc: process.env.PONDER_RPC_URL_TESTNET ?? polygon.rpcUrls.default.http[0],
-    startOracleFreeDollar: 46376031,
-    startMintingHub: 46376356,
     blockrange: undefined,
     maxRequestsPerSecond: 25,
     pollingInterval: 5_000,
+    rpc: process.env.PONDER_RPC_URL_TESTNET ?? polygon.rpcUrls.default.http[0],
+    startMintingHub: 46376356,
+    startOracleFreeDollar: 46376031,
+    startSavings: 46376310,
   },
 };
 
@@ -85,7 +87,7 @@ export default createConfig({
       network: chain.name,
       abi: ABIs.Savings,
       address: ADDR.savings as Address,
-      startBlock: config.startMintingHub,
+      startBlock: config.startSavings,
       maxBlockRange: config.blockrange,
     },
     Roller: {
