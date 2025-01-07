@@ -14,7 +14,7 @@ ponder.on('OracleFreeDollar:Profit', async ({ event, context }) => {
   }));
 
   await database.insert(OFDPS).values({
-    id: event.log.address,
+    id: event.log.address.toLowerCase(),
     profits: event.args.amount,
     loss: 0n,
     reserve: 0n,
@@ -42,7 +42,7 @@ ponder.on('OracleFreeDollar:Loss', async ({ event, context }) => {
   }));
 
   await database.insert(OFDPS).values({
-    id: event.log.address,
+    id: event.log.address.toLowerCase(),
     profits: 0n,
     loss: event.args.amount,
     reserve: 0n,
