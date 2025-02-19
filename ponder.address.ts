@@ -1,5 +1,5 @@
 import { Address } from "viem";
-import {Chain, bsc, bscTestnet} from 'viem/chains'
+import {Chain, bsc, bscTestnet, mainnet} from 'viem/chains'
 
 export type AddressObject = {
   [chainId in Chain["id"]]?: { [key: string]: Address };
@@ -26,4 +26,13 @@ export const ADDRESS: AddressObject = {
     roller: "0x3C672bA969D4eD2f9F3F39eeE4Fdfb40fce1c8f9",
     // wFPS: "0x5052D3Cc819f53116641e89b96Ff4cD1EE80B182",
   },
+  [mainnet.id]: {
+    oracleFreeDollar: "0x591cf237452497335a9850f49f747d95569eb3b1",
+    bridge: "0x77007Bd7Fc9311180d7b4C6532E15d0FEAE5703E",
+    usdt: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+    equity: "0x0619f152892c9dd014086a02516c2545d6f6f747",
+    mintingHub: "0xCA8D28D62d863f52795c9fdCaE73c6EEB0ff504C",
+    savings: "0x07c9ed9a7f18d166e25a47a2ac321ad4db5c6b36",
+    roller: "0x47db60dE931Cdc550A04DB3f1Dec079b9c77fd23",
+  }
 };

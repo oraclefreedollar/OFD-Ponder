@@ -2,12 +2,13 @@ import { createConfig } from "@ponder/core";
 import "dotenv/config";
 import { Address, http, parseAbiItem } from "viem";
 
-import { bsc, bscTestnet, polygon } from 'viem/chains'
+import {bsc, bscTestnet, mainnet} from 'viem/chains'
 
 import { ADDRESS } from "./ponder.address";
 import { ABIs } from 'abis'
 
-export const chain = (process.env.PONDER_PROFILE as string) == 'dev' ? bscTestnet : bsc;
+// export const chain = (process.env.PONDER_PROFILE as string) == 'dev' ? bscTestnet : bsc;
+export const chain = mainnet;
 export const Id = chain.id!;
 export const ADDR = ADDRESS[chain.id]!;
 
@@ -25,10 +26,19 @@ export const CONFIG = {
     blockrange: undefined,
     maxRequestsPerSecond: 25,
     pollingInterval: 5_000,
-    rpc: process.env.PONDER_RPC_URL_TESTNET ?? polygon.rpcUrls.default.http[0],
+    rpc: process.env.PONDER_RPC_URL_TESTNET ?? bscTestnet.rpcUrls.default.http[0],
     startMintingHub: 46376356,
     startOracleFreeDollar: 46376031,
     startSavings: 46376310,
+  },
+  [mainnet.id]: {
+    blockrange: undefined,
+    maxRequestsPerSecond: 25,
+    pollingInterval: 5_000,
+    rpc: process.env.PONDER_RPC_URL_1 ?? mainnet.rpcUrls.default.http[0],
+    startMintingHub: 21587949,
+    startOracleFreeDollar: 21587864,
+    startSavings: 21587934,
   },
 };
 
