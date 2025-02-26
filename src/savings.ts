@@ -1,5 +1,4 @@
 import { ponder } from '@/generated';
-import { ADDR } from '../ponder.config';
 import { Address } from 'viem';
 import {
     Ecosystem,
@@ -14,11 +13,14 @@ import {
 } from '../ponder.schema'
 
 ponder.on('Savings:RateProposed', async ({ event, context }) => {
-    const database = context.db;
+    const { db, network } = context;
+    const database = db;
+    const { chainId } = network;
     const { who, nextChange, nextRate } = event.args;
 
     // flat indexing
     await database.insert(SavingsRateProposed).values({
+        chainId,
         id: `${who.toLowerCase()}-${event.block.number}`,
         created: event.block.timestamp,
         blockheight: event.block.number,
@@ -30,11 +32,14 @@ ponder.on('Savings:RateProposed', async ({ event, context }) => {
 });
 
 ponder.on('Savings:RateChanged', async ({ event, context }) => {
-    const database = context.db;
+    const {db, network} = context;
+    const database = db;
+    const { chainId } = network;
     const { newRate } = event.args;
 
     // flat indexing
     await database.insert(SavingsRateChanged).values({
+        chainId,
         id: event.block.number.toString(),
         created: event.block.timestamp,
         blockheight: event.block.number,
@@ -44,20 +49,22 @@ ponder.on('Savings:RateChanged', async ({ event, context }) => {
 });
 
 ponder.on('Savings:Saved', async ({ event, context }) => {
-    const { client, contracts } = context;
+    const { client, contracts, db, network } = context;
     const {Savings} = contracts;
-    const database = context.db;
+    const database = db;
+    const { chainId } = network;
     const { amount } = event.args;
     const account: Address = event.args.account.toLowerCase() as Address;
 
     const ratePPM = await client.readContract({
         abi: Savings.abi,
-        address: ADDR.savings,
+        address: Savings.address,
         functionName: 'currentRatePPM',
     });
 
     // map indexing
     await database.insert(SavingsSavedMapping).values({
+        chainId,
         id: account,
         created: event.block.timestamp,
         blockheight: event.block.number,
@@ -68,9 +75,9 @@ ponder.on('Savings:Saved', async ({ event, context }) => {
         amount: current.amount + amount,
     }));
 
-    const latestSaved = await database.find(SavingsSavedMapping, {id: account});
-    const latestWithdraw = await database.find(SavingsWithdrawnMapping, {id: account});
-    const latestInterest = await database.find(SavingsInterestMapping, {id: account});
+    const latestSaved = await database.find(SavingsSavedMapping, {id: account, chainId});
+    const latestWithdraw = await database.find(SavingsWithdrawnMapping, {id: account, chainId});
+    const latestInterest = await database.find(SavingsInterestMapping, {id: account, chainId});
 
     const balance: bigint = latestSaved
         ? latestSaved.amount - (latestWithdraw ? latestWithdraw.amount : 0n) + (latestInterest ? latestInterest.amount : 0n)
@@ -78,6 +85,7 @@ ponder.on('Savings:Saved', async ({ event, context }) => {
 
     // flat indexing
     await database.insert(SavingsSaved).values({
+        chainId,
         id: `${account}-${event.block.number.toString()}`,
         created: event.block.timestamp,
         blockheight: event.block.number,
@@ -91,6 +99,7 @@ ponder.on('Savings:Saved', async ({ event, context }) => {
 
     // ecosystem
     await database.insert(Ecosystem).values({
+        chainId,
         id: 'Savings:TotalSaved',
         value: '',
         amount: amount,
@@ -100,21 +109,23 @@ ponder.on('Savings:Saved', async ({ event, context }) => {
 });
 
 ponder.on('Savings:InterestCollected', async ({ event, context }) => {
-    const { client, contracts } = context;
+    const { client, contracts, db, network } = context;
     const { Savings } = contracts;
-    const database = context.db;
+    const database = db;
+    const { chainId } = network;
     const { interest } = event.args;
     const account: Address = event.args.account.toLowerCase() as Address;
 
     const ratePPM = await client.readContract({
         abi: Savings.abi,
-        address: ADDR.savings,
+        address: Savings.address,
         functionName: 'currentRatePPM',
     });
 
     // map indexing
 
     await database.insert(SavingsInterestMapping).values({
+        chainId,
         id: account,
         created: event.block.timestamp,
         blockheight: event.block.number,
@@ -125,9 +136,9 @@ ponder.on('Savings:InterestCollected', async ({ event, context }) => {
         amount: current.amount + interest,
     }));
 
-    const latestSaved = await database.find(SavingsSavedMapping, {id: account});
-    const latestWithdraw = await database.find(SavingsWithdrawnMapping, {id: account});
-    const latestInterest = await database.find(SavingsInterestMapping, {id: account});
+    const latestSaved = await database.find(SavingsSavedMapping, {id: account, chainId});
+    const latestWithdraw = await database.find(SavingsWithdrawnMapping, {id: account, chainId});
+    const latestInterest = await database.find(SavingsInterestMapping, {id: account, chainId});
 
     const balance: bigint = latestSaved
         ? latestSaved.amount - (latestWithdraw ? latestWithdraw.amount : 0n) + (latestInterest ? latestInterest.amount : 0n)
@@ -136,6 +147,7 @@ ponder.on('Savings:InterestCollected', async ({ event, context }) => {
     // flat indexing
 
     await database.insert(SavingsInterest).values({
+        chainId,
         id: `${account}-${event.block.number.toString()}`,
         created: event.block.timestamp,
         blockheight: event.block.number,
@@ -150,6 +162,7 @@ ponder.on('Savings:InterestCollected', async ({ event, context }) => {
     // ecosystem
 
     await database.insert(Ecosystem).values({
+        chainId,
         id: 'Savings:TotalInterestCollected',
         value: '',
         amount: interest,
@@ -159,20 +172,22 @@ ponder.on('Savings:InterestCollected', async ({ event, context }) => {
 });
 
 ponder.on('Savings:Withdrawn', async ({ event, context }) => {
-    const { client, contracts } = context;
+    const { client, contracts, db, network } = context;
     const { Savings } = contracts;
-    const database = context.db;
+    const database = db;
+    const { chainId } = network
     const { amount } = event.args;
     const account: Address = event.args.account.toLowerCase() as Address;
 
     const ratePPM = await client.readContract({
         abi: Savings.abi,
-        address: ADDR.savings,
+        address: Savings.address,
         functionName: 'currentRatePPM',
     });
 
     // map indexing
     await database.insert(SavingsWithdrawnMapping).values({
+        chainId,
         id: account,
         created: event.block.timestamp,
         blockheight: event.block.number,
@@ -183,9 +198,9 @@ ponder.on('Savings:Withdrawn', async ({ event, context }) => {
         amount: current.amount + amount,
     }));
 
-    const latestSaved = await database.find(SavingsSavedMapping, {id: account});
-    const latestWithdraw = await database.find(SavingsWithdrawnMapping, {id: account});
-    const latestInterest = await database.find(SavingsInterestMapping, {id: account});
+    const latestSaved = await database.find(SavingsSavedMapping, {id: account, chainId});
+    const latestWithdraw = await database.find(SavingsWithdrawnMapping, {id: account, chainId});
+    const latestInterest = await database.find(SavingsInterestMapping, {id: account, chainId});
 
 
     const balance: bigint = latestSaved
@@ -194,6 +209,7 @@ ponder.on('Savings:Withdrawn', async ({ event, context }) => {
 
     // flat indexing
     await database.insert(SavingsWithdrawn).values({
+        chainId,
         id: `${account}-${event.block.number.toString()}`,
         created: event.block.timestamp,
         blockheight: event.block.number,
@@ -207,6 +223,7 @@ ponder.on('Savings:Withdrawn', async ({ event, context }) => {
 
     // ecosystem
     await database.insert(Ecosystem).values({
+        chainId,
         id: 'Savings:TotalWithdrawn',
         value: '',
         amount: amount,

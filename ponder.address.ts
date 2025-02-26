@@ -1,8 +1,18 @@
 import { Address } from "viem";
 import {Chain, bsc, bscTestnet, mainnet} from 'viem/chains'
 
+enum Contracts {
+  bridge = "bridge",
+  equity = "equity",
+  mintingHub = "mintingHub",
+  oracleFreeDollar = "oracleFreeDollar",
+  roller = "roller",
+  savings = "savings",
+  usdt = "usdt",
+}
+
 export type AddressObject = {
-  [chainId in Chain["id"]]?: { [key: string]: Address };
+  [chainId in Chain["id"]]?: Record<Contracts, Address>;
 };
 
 export const ADDRESS: AddressObject = {

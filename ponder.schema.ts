@@ -5,6 +5,7 @@ import {onchainTable, primaryKey} from '@ponder/core'
 // -------------------------------------------------------------------------
 
 export const Mint = onchainTable('mint', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   to: t.text().notNull(),
   value: t.bigint().notNull(),
@@ -13,6 +14,7 @@ export const Mint = onchainTable('mint', (t) => ({
 }));
 
 export const Burn = onchainTable('burn', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   from: t.text().notNull(),
   value: t.bigint().notNull(),
@@ -21,12 +23,14 @@ export const Burn = onchainTable('burn', (t) => ({
 }));
 
 export const MintBurnAddressMapper = onchainTable('mint_burn_address_mapper', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   mint: t.bigint().notNull(),
   burn: t.bigint().notNull(),
 }));
 
 export const Minter = onchainTable('minter', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   txHash: t.text().notNull(),
   minter: t.text().notNull(),
@@ -46,12 +50,14 @@ export const Minter = onchainTable('minter', (t) => ({
 // -------------------------------------------------------------------------
 
 export const VotingPower = onchainTable('voting_power', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   address: t.text().notNull(),
   votingPower: t.bigint().notNull(),
 }));
 
 export const OFDPS = onchainTable('ofdps', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   profits: t.bigint().notNull(),
   loss: t.bigint().notNull(),
@@ -59,12 +65,14 @@ export const OFDPS = onchainTable('ofdps', (t) => ({
 }));
 
 export const Delegation = onchainTable('delegation', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   owner: t.text().notNull(),
   delegatedTo: t.text().notNull(),
 }));
 
 export const Trade = onchainTable('trade', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   trader: t.text().notNull(),
   amount: t.bigint().notNull(),
@@ -74,6 +82,7 @@ export const Trade = onchainTable('trade', (t) => ({
 }));
 
 export const TradeChart = onchainTable('trade_chart', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   time: t.bigint().notNull(),
   lastPrice: t.bigint().notNull(),
@@ -84,6 +93,7 @@ export const TradeChart = onchainTable('trade_chart', (t) => ({
 // -------------------------------------------------------------------------
 
 export const SavingsRateProposed = onchainTable('savings_rate_proposed', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   created: t.bigint().notNull(),
   blockheight: t.bigint().notNull(),
@@ -94,6 +104,7 @@ export const SavingsRateProposed = onchainTable('savings_rate_proposed', (t) => 
 }));
 
 export const SavingsRateChanged = onchainTable('savings_rate_changed', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   created: t.bigint().notNull(),
   blockheight: t.bigint().notNull(),
@@ -102,6 +113,7 @@ export const SavingsRateChanged = onchainTable('savings_rate_changed', (t) => ({
 }));
 
 export const SavingsSaved = onchainTable('savings_saved', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   created: t.bigint().notNull(),
   blockheight: t.bigint().notNull(),
@@ -114,6 +126,7 @@ export const SavingsSaved = onchainTable('savings_saved', (t) => ({
 }));
 
 export const SavingsSavedMapping = onchainTable('savings_saved_mapping', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(), // address in lower case
   created: t.bigint().notNull(), // first timestamp
   blockheight: t.bigint().notNull(), // first blockheight
@@ -122,6 +135,7 @@ export const SavingsSavedMapping = onchainTable('savings_saved_mapping', (t) => 
 }));
 
 export const SavingsInterest = onchainTable('savings_interest', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   created: t.bigint().notNull(),
   blockheight: t.bigint().notNull(),
@@ -134,6 +148,7 @@ export const SavingsInterest = onchainTable('savings_interest', (t) => ({
 }));
 
 export const SavingsInterestMapping = onchainTable('savings_interest_mapping', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   created: t.bigint().notNull(),
   blockheight: t.bigint().notNull(),
@@ -142,6 +157,7 @@ export const SavingsInterestMapping = onchainTable('savings_interest_mapping', (
 }));
 
 export const SavingsWithdrawn = onchainTable('savings_withdrawn', (t => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   created: t.bigint().notNull(),
   blockheight: t.bigint().notNull(),
@@ -154,6 +170,7 @@ export const SavingsWithdrawn = onchainTable('savings_withdrawn', (t => ({
 })));
 
 export const SavingsWithdrawnMapping = onchainTable('savings_withdrawn_mapping', (t => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   created: t.bigint().notNull(),
   blockheight: t.bigint().notNull(),
@@ -162,6 +179,7 @@ export const SavingsWithdrawnMapping = onchainTable('savings_withdrawn_mapping',
 })));
 
 export const RollerRolled = onchainTable('roller_rolled', (t => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   created: t.bigint().notNull(),
   blockheight: t.bigint().notNull(),
@@ -179,6 +197,7 @@ export const RollerRolled = onchainTable('roller_rolled', (t => ({
 // -------------------------------------------------------------------------
 
 export const Position = onchainTable('position', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   position: t.text().notNull(),
   owner: t.text().notNull(),
@@ -212,6 +231,7 @@ export const Position = onchainTable('position', (t) => ({
 }));
 
 export const MintingUpdate= onchainTable('minting_update', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   txHash: t.text().notNull(),
   created: t.bigint().notNull(),
@@ -238,6 +258,7 @@ export const MintingUpdate= onchainTable('minting_update', (t) => ({
 }));
 
 export const Challenge= onchainTable('challenge', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(), // e.g. 0x5d0e66DC411FEfBE9cAe9CE56dA9BCE8C027f492-challenge-2
   position: t.text().notNull(), // position being challenged
   number: t.bigint().notNull(), // number of the challenge in minting hub
@@ -254,6 +275,7 @@ export const Challenge= onchainTable('challenge', (t) => ({
 }));
 
 export const ChallengeBid = onchainTable('challenge_bid', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(), // e.g. 0x5d0e66DC411FEfBE9cAe9CE56dA9BCE8C027f492-challenge-2-bid-0
   position: t.text().notNull(),
   number: t.bigint().notNull(),
@@ -273,11 +295,13 @@ export const ChallengeBid = onchainTable('challenge_bid', (t) => ({
 // -------------------------------------------------------------------------
 
 export const ActiveUser = onchainTable('active_user', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   lastActiveTime: t.bigint().notNull(),
 }));
 
 export const Ecosystem = onchainTable('ecosystem', (t) => ({
+  chainId: t.text().notNull(),
   id: t.text().primaryKey(),
   value: t.text().notNull(),
   amount: t.bigint().notNull(),

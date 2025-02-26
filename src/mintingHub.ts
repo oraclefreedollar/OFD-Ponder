@@ -4,9 +4,10 @@ import {ActiveUser, Challenge, ChallengeBid, Ecosystem, Position as PositionSche
 
 // event PositionOpened(address indexed owner, address indexed position, address original, address collateral);
 ponder.on('MintingHub:PositionOpened', async ({ event, context }) => {
-  const { client, contracts } = context;
+  const { client, contracts, db, network } = context;
   const { Position } = contracts;
-  const database = context.db;
+  const database = db;
+  const { chainId } = network;
 
   // ------------------------------------------------------------------
   // FROM EVENT & TRANSACTION
@@ -171,7 +172,7 @@ ponder.on('MintingHub:PositionOpened', async ({ event, context }) => {
       functionName: 'availableForMinting',
     });
 
-    await database.update(PositionSchema, {id: original.toLowerCase()}).set( (row) => {
+    await database.update(PositionSchema, {id: original.toLowerCase(), chainId}).set( (row) => {
         return {
             availableForClones: originalAvailableForClones,
             availableForMinting: originalAvailableForMinting,
@@ -184,6 +185,7 @@ ponder.on('MintingHub:PositionOpened', async ({ event, context }) => {
   // ------------------------------------------------------------------
   // Create position entry for DB
   await database.insert(PositionSchema).values({
+    chainId,
     id: position.toLowerCase(),
     position,
     owner,
@@ -225,6 +227,7 @@ ponder.on('MintingHub:PositionOpened', async ({ event, context }) => {
   // COMMON
 
   await database.insert(Ecosystem).values({
+    chainId,
     id: 'MintingHub:TotalPositions',
     value: '',
     amount: 1n,
@@ -233,6 +236,7 @@ ponder.on('MintingHub:PositionOpened', async ({ event, context }) => {
   }));
 
   await database.insert(ActiveUser).values({
+    chainId,
     id: event.transaction.from,
     lastActiveTime: event.block.timestamp,
   }).onConflictDoUpdate(()=> ({
@@ -241,9 +245,10 @@ ponder.on('MintingHub:PositionOpened', async ({ event, context }) => {
 });
 
 ponder.on('MintingHub:ChallengeStarted', async ({ event, context }) => {
-  const { client } = context;
-  const database = context.db;
-  const { MintingHub, Position } = context.contracts;
+  const { client, contracts, db, network } = context;
+  const database = db;
+  const { MintingHub, Position } = contracts;
+  const { chainId } = network;
 
   const challenges = await client.readContract({
     abi: MintingHub.abi,
@@ -265,6 +270,7 @@ ponder.on('MintingHub:ChallengeStarted', async ({ event, context }) => {
   });
 
   await database.insert(Challenge).values({
+    chainId,
     id: getChallengeId(event.args.position, event.args.number),
     position: event.args.position,
     number: event.args.number,
@@ -285,6 +291,7 @@ ponder.on('MintingHub:ChallengeStarted', async ({ event, context }) => {
   // ------------------------------------------------------------------
   // COMMON
   await database.insert(Ecosystem).values({
+    chainId,
     id: 'MintingHub:TotalChallenges',
     value: '',
     amount: 1n,
@@ -293,6 +300,7 @@ ponder.on('MintingHub:ChallengeStarted', async ({ event, context }) => {
   }));
 
   await database.insert(ActiveUser).values({
+    chainId,
     id: event.transaction.from,
     lastActiveTime: event.block.timestamp,
   }).onConflictDoUpdate(()=> ({
@@ -302,9 +310,10 @@ ponder.on('MintingHub:ChallengeStarted', async ({ event, context }) => {
 
 // event ChallengeAverted(address indexed position, uint256 number, uint256 size);
 ponder.on('MintingHub:ChallengeAverted', async ({ event, context }) => {
-  const { client } = context;
-  const database = context.db;
-  const { MintingHub, Position } = context.contracts;
+  const { client, contracts, db, network } = context;
+  const database = db;
+  const { MintingHub, Position } = contracts;
+  const { chainId } = network;
 
   // console.log('ChallengeAverted', event.args);
 
@@ -331,7 +340,7 @@ ponder.on('MintingHub:ChallengeAverted', async ({ event, context }) => {
 
   const challengeId = getChallengeId(event.args.position, event.args.number);
 
-  const challenge = await database.find(Challenge, {id:challengeId})
+  const challenge = await database.find(Challenge, {id:challengeId, chainId})
 
   if (!challenge) throw new Error('ChallengeV1 not found');
 
@@ -343,6 +352,7 @@ ponder.on('MintingHub:ChallengeAverted', async ({ event, context }) => {
 
   // create ChallengeBid entry
   await database.insert(ChallengeBid).values({
+    chainId,
     id: challengeBidId,
     position: event.args.position,
     number: event.args.number,
@@ -358,7 +368,7 @@ ponder.on('MintingHub:ChallengeAverted', async ({ event, context }) => {
   });
 
   // update Challenge related changes
-  await database.update(Challenge, {id: challengeId}).set( (row) => {
+  await database.update(Challenge, {id: challengeId, chainId}).set( (row) => {
     return {
       bids: row.bids + 1n,
       filledSize: row.filledSize + event.args.size,
@@ -367,13 +377,14 @@ ponder.on('MintingHub:ChallengeAverted', async ({ event, context }) => {
   })
 
   // update Position related changes
-  await database.update(PositionSchema, {id: event.args.position.toLowerCase()}).set( () => ({
+  await database.update(PositionSchema, {id: event.args.position.toLowerCase(), chainId}).set( () => ({
     cooldown: BigInt(cooldown)
   }))
 
   // ------------------------------------------------------------------
   // COMMON
   await database.insert(Ecosystem).values({
+    chainId,
     id: 'MintingHub:TotalAvertedBids',
     value: '',
     amount: 1n,
@@ -382,6 +393,7 @@ ponder.on('MintingHub:ChallengeAverted', async ({ event, context }) => {
   }))
 
   await database.insert(ActiveUser).values({
+    chainId,
     id: event.transaction.from,
     lastActiveTime: event.block.timestamp,
   }).onConflictDoUpdate(() => ({
@@ -398,9 +410,10 @@ ponder.on('MintingHub:ChallengeAverted', async ({ event, context }) => {
 // );
 // emit ChallengeSucceeded(address(_challenge.position), _challengeNumber, offer, transferredCollateral, size);
 ponder.on('MintingHub:ChallengeSucceeded', async ({ event, context }) => {
-  const { client } = context;
-  const database = context.db;
-  const { MintingHub, Position } = context.contracts;
+  const { client, contracts, db, network } = context;
+  const database = db;
+  const { MintingHub, Position } = contracts;
+  const { chainId } = network;
 
   // console.log('ChallengeSucceeded', event.args);
 
@@ -420,7 +433,7 @@ ponder.on('MintingHub:ChallengeSucceeded', async ({ event, context }) => {
   });
 
   const challengeId = getChallengeId(event.args.position, event.args.number);
-  const challenge = await database.find(Challenge, {id:challengeId})
+  const challenge = await database.find(Challenge, {id:challengeId, chainId})
 
   if (!challenge) throw new Error('ChallengeV1 not found');
 
@@ -432,6 +445,7 @@ ponder.on('MintingHub:ChallengeSucceeded', async ({ event, context }) => {
 
   // create ChallengeBidV1 entry
   await database.insert(ChallengeBid).values({
+    chainId,
     id: challengeBidId,
     position: event.args.position,
     number: event.args.number,
@@ -446,20 +460,21 @@ ponder.on('MintingHub:ChallengeSucceeded', async ({ event, context }) => {
     challengeSize: challenge.size,
   });
 
-  await database.update(Challenge, {id: challengeId}).set( (row) => ({
+  await database.update(Challenge, {id: challengeId, chainId}).set( (row) => ({
     bids: row.bids + 1n,
     acquiredCollateral: row.acquiredCollateral + event.args.acquiredCollateral,
     filledSize: row.filledSize + event.args.challengeSize,
     status: challenges[3] === 0n ? 'Success' : row.status
   }))
 
-  await database.update(PositionSchema, {id: event.args.position.toLowerCase()}).set( () => ({
+  await database.update(PositionSchema, {id: event.args.position.toLowerCase(), chainId}).set( () => ({
       cooldown: BigInt(cooldown)
   }))
 
   // ------------------------------------------------------------------
   // COMMON
   await database.insert(Ecosystem).values({
+    chainId,
     id: 'MintingHub:TotalSucceededBids',
     value: '',
     amount: 1n,
@@ -468,6 +483,7 @@ ponder.on('MintingHub:ChallengeSucceeded', async ({ event, context }) => {
   }))
 
   await database.insert(ActiveUser).values({
+    chainId,
     id: event.transaction.from,
     lastActiveTime: event.block.timestamp,
   }).onConflictDoUpdate(() => ({

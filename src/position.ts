@@ -2,8 +2,9 @@ import { ponder } from "@/generated";
 import {ActiveUser, Ecosystem, MintingUpdate, Position as PositionSchema} from '../ponder.schema'
 
 ponder.on('Position:MintingUpdate', async ({ event, context }) => {
-  const { client } = context;
-  const database = context.db;
+  const { client, db, network } = context;
+  const database = db;
+  const { chainId } = network;
   const { Position, Savings } = context.contracts;
 
   // event MintingUpdate(uint256 collateral, uint256 price, uint256 minted);
@@ -35,11 +36,12 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
     functionName: 'currentRatePPM',
   });
 
-  const position = await database.find(PositionSchema, {id: positionAddress.toLowerCase()});
+  const position = await database.find(PositionSchema, {id: positionAddress.toLowerCase(), chainId});
 
   if (!position) throw new Error('Position unknown in MintingUpdate');
 
   await database.update(PositionSchema, {id: positionAddress.toLowerCase()}).set({
+    chainId,
     collateralBalance: collateral,
     price,
     minted,
@@ -53,6 +55,7 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
   const idEco = `PositionMintingUpdates:${positionAddress.toLowerCase()}`;
 
   await database.insert(Ecosystem).values({
+    chainId,
     id: idEco,
     value: '',
     amount: 1n,
@@ -60,7 +63,7 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
     amount: current.amount + 1n,
   }));
 
-  const ecosystem = await database.find(Ecosystem, {id: idEco})
+  const ecosystem = await database.find(Ecosystem, {id: idEco, chainId})
   const mintingCounter = ecosystem?.amount;
 
   if (mintingCounter === undefined) throw new Error('MintingCounter not found.');
@@ -89,6 +92,7 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
 
   if (mintingCounter === 1n) {
     await database.insert(MintingUpdate).values({
+      chainId,
       id: idMinting(1),
       txHash: event.transaction.hash,
       created: event.block.timestamp,
@@ -114,7 +118,7 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
       feePaid: getFeePaid(minted),
     });
   } else {
-    const prev = await database.find(MintingUpdate, {id: idMinting(mintingCounter - 1n)});
+    const prev = await database.find(MintingUpdate, {id: idMinting(mintingCounter - 1n), chainId});
     if (prev == null) throw new Error(`previous minting update not found.`);
 
     const sizeAdjusted = collateral - prev.size;
@@ -123,6 +127,7 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
     const basePremiumPPMAdjusted = baseRatePPM - prev.basePremiumPPM;
 
     await database.insert(MintingUpdate).values({
+      chainId,
       id: idMinting(mintingCounter),
       txHash: event.transaction.hash,
       created: event.block.timestamp,
@@ -151,8 +156,9 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
 
   // user updates
   await database.insert(ActiveUser).values({
-      id: event.transaction.from,
-      lastActiveTime: event.block.timestamp,
+    chainId,
+    id: event.transaction.from,
+    lastActiveTime: event.block.timestamp,
   }).onConflictDoUpdate((current)=> ({
       lastActiveTime: event.block.timestamp,
   }))
@@ -160,11 +166,12 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
 });
 
 ponder.on('Position:PositionDenied', async ({ event, context }) => {
-  const { client, contracts } = context;
-  const database = context.db;
+  const { client, contracts, db, network } = context;
+  const database = db;
+  const { chainId } = network;
   const { Position } = contracts;
 
-  const position =  await database.find(PositionSchema, {id: event.log.address.toLowerCase()});
+  const position =  await database.find(PositionSchema, {id: event.log.address.toLowerCase(), chainId});
 
   const cooldown = await client.readContract({
     abi: Position.abi,
@@ -174,12 +181,14 @@ ponder.on('Position:PositionDenied', async ({ event, context }) => {
 
   if (position) {
     await database.update(PositionSchema, {id: event.log.address.toLowerCase()}).set({
+      chainId,
       cooldown: BigInt(cooldown),
       denied: true,
     });
   }
 
   await database.insert(ActiveUser).values({
+    chainId,
     id: event.transaction.from,
     lastActiveTime: event.block.timestamp,
   }).onConflictDoUpdate((current)=> ({
@@ -188,20 +197,23 @@ ponder.on('Position:PositionDenied', async ({ event, context }) => {
 });
 
 ponder.on('Position:OwnershipTransferred', async ({ event, context }) => {
-  const database = context.db;
+  const { db, network } = context;
+  const database = db;
+  const { chainId } = network;
 
-
-  const position =  await database.find(PositionSchema, {id: event.log.address.toLowerCase()});
+  const position =  await database.find(PositionSchema, {id: event.log.address.toLowerCase(), chainId});
 
   if (position) {
     await database.update(PositionSchema, {id: event.log.address.toLowerCase()}).set({
+      chainId,
       owner: event.args.newOwner,
     });
   }
 
   await database.insert(ActiveUser).values({
-      id: event.transaction.from,
-      lastActiveTime: event.block.timestamp,
+    chainId,
+    id: event.transaction.from,
+    lastActiveTime: event.block.timestamp,
   }).onConflictDoUpdate((current)=> ({
       lastActiveTime: event.block.timestamp,
   }))

@@ -1,6 +1,6 @@
 import { createConfig } from "@ponder/core";
 import "dotenv/config";
-import { Address, http, parseAbiItem } from "viem";
+import { http, parseAbiItem } from "viem";
 
 import {bsc, bscTestnet, mainnet} from 'viem/chains'
 
@@ -8,16 +8,13 @@ import { ADDRESS } from "./ponder.address";
 import { ABIs } from 'abis'
 
 // export const chain = (process.env.PONDER_PROFILE as string) == 'dev' ? bscTestnet : bsc;
-export const chain = mainnet;
-export const Id = chain.id!;
-export const ADDR = ADDRESS[chain.id]!;
 
-export const CONFIG = {
+const CONFIG = {
   [bsc.id]: {
     blockrange: 10000,
     maxRequestsPerSecond: 50,
     pollingInterval: 5_000,
-    rpc: process.env.PONDER_RPC_URL_1 ?? bsc.rpcUrls.default.http[0],
+    rpc: process.env.PONDER_RPC_URL_56 ?? bsc.rpcUrls.default.http[0],
     startMintingHub: 45094649,
     startOracleFreeDollar: 45094487,
     startSavings: 45094581,
@@ -26,7 +23,7 @@ export const CONFIG = {
     blockrange: undefined,
     maxRequestsPerSecond: 25,
     pollingInterval: 5_000,
-    rpc: process.env.PONDER_RPC_URL_TESTNET ?? bscTestnet.rpcUrls.default.http[0],
+    rpc: process.env.PONDER_RPC_URL_97 ?? bscTestnet.rpcUrls.default.http[0],
     startMintingHub: 46376356,
     startOracleFreeDollar: 46376031,
     startSavings: 46376310,
@@ -42,8 +39,6 @@ export const CONFIG = {
   },
 };
 
-export const config = CONFIG[Id];
-
 const openPositionEvent = parseAbiItem(
   "event PositionOpened(address indexed owner,address indexed position,address original,address collateral)"
 );
@@ -53,59 +48,157 @@ const openPositionEvent = parseAbiItem(
 
 export default createConfig({
   networks: {
-    [chain.name]: {
-      chainId: Id,
-      maxRequestsPerSecond: CONFIG[Id].maxRequestsPerSecond,
-      pollingInterval: CONFIG[Id].pollingInterval,
-      transport: http(CONFIG[Id].rpc),
+    mainnet: {
+      chainId: 1,
+      maxRequestsPerSecond: CONFIG[mainnet.id].maxRequestsPerSecond,
+      pollingInterval: CONFIG[mainnet.id].pollingInterval,
+      transport: http(CONFIG[mainnet.id].rpc),
+    },
+    bsc: {
+      chainId: 56,
+      maxRequestsPerSecond: CONFIG[bsc.id].maxRequestsPerSecond,
+      pollingInterval: CONFIG[bsc.id].pollingInterval,
+      transport: http(CONFIG[bsc.id].rpc),
+    },
+    bscTestnet: {
+      chainId: 97,
+      maxRequestsPerSecond: CONFIG[bscTestnet.id].maxRequestsPerSecond,
+      pollingInterval: CONFIG[bscTestnet.id].pollingInterval,
+      transport: http(CONFIG[bscTestnet.id].rpc),
     },
   },
   contracts: {
     OracleFreeDollar: {
-      network: chain.name,
       abi: ABIs.OracleFreeDollar,
-      address: ADDR.oracleFreeDollar as Address,
-      startBlock: config.startOracleFreeDollar,
-      maxBlockRange: config.blockrange,
+      network: {
+        mainnet: {
+          address: ADDRESS[mainnet.id]?.oracleFreeDollar,
+          startBlock: CONFIG[mainnet.id].startOracleFreeDollar,
+          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        },
+        bsc: {
+          address: ADDRESS[bsc.id]?.oracleFreeDollar,
+          startBlock: CONFIG[bsc.id].startOracleFreeDollar,
+          maxBlockRange: CONFIG[bsc.id].blockrange,
+        },
+        bscTestnet: {
+          address: ADDRESS[bscTestnet.id]?.oracleFreeDollar,
+          startBlock: CONFIG[bscTestnet.id].startOracleFreeDollar,
+          maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+        },
+      },
     },
     Equity: {
-      network: chain.name,
       abi: ABIs.Equity,
-      address: ADDR.equity as Address,
-      startBlock: config.startOracleFreeDollar,
-      maxBlockRange: config.blockrange,
+      network: {
+        mainnet: {
+          address: ADDRESS[mainnet.id]?.equity,
+          startBlock: CONFIG[mainnet.id].startOracleFreeDollar,
+          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        },
+        bsc: {
+          address: ADDRESS[bsc.id]?.equity,
+          startBlock: CONFIG[bsc.id].startOracleFreeDollar,
+          maxBlockRange: CONFIG[bsc.id].blockrange,
+        },
+        bscTestnet: {
+          address: ADDRESS[bscTestnet.id]?.equity,
+          startBlock: CONFIG[bscTestnet.id].startOracleFreeDollar,
+          maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+        },
+      },
     },
     MintingHub: {
-      network: chain.name,
       abi: ABIs.MintingHub,
-      address: ADDR.mintingHub as Address,
-      startBlock: config.startMintingHub,
-      maxBlockRange: config.blockrange,
+      network: {
+        mainnet: {
+          address: ADDRESS[mainnet.id]?.mintingHub,
+          startBlock: CONFIG[mainnet.id].startMintingHub,
+          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        },
+        bsc: {
+          address: ADDRESS[bsc.id]?.mintingHub,
+          startBlock: CONFIG[bsc.id].startMintingHub,
+          maxBlockRange: CONFIG[bsc.id].blockrange,
+        },
+        bscTestnet: {
+          address: ADDRESS[bscTestnet.id]?.mintingHub,
+          startBlock: CONFIG[bscTestnet.id].startMintingHub,
+          maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+        },
+      },
     },
     Position: {
-      network: chain.name,
       abi: ABIs.Position,
-      factory: {
-        address: ADDR.mintingHub as Address,
-        event: openPositionEvent,
-        parameter: "position",
+      network: {
+        mainnet: {
+          startBlock: CONFIG[mainnet.id].startMintingHub,
+          maxBlockRange: CONFIG[mainnet.id].blockrange,
+          factory: {
+            address: ADDRESS[mainnet.id]?.mintingHub,
+            event: openPositionEvent,
+            parameter: "position",
+          },
+        },
+        bsc: {
+          startBlock: CONFIG[bsc.id].startMintingHub,
+          maxBlockRange: CONFIG[bsc.id].blockrange,
+          factory: {
+            address: ADDRESS[bsc.id]?.mintingHub,
+            event: openPositionEvent,
+            parameter: "position",
+          },
+        },
+        bscTestnet: {
+          startBlock: CONFIG[bscTestnet.id].startMintingHub,
+          maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+          factory: {
+            address: ADDRESS[bscTestnet.id]?.mintingHub,
+            event: openPositionEvent,
+            parameter: "position",
+          },
+        },
       },
-      startBlock: config.startMintingHub,
-      maxBlockRange: config.blockrange,
     },
     Savings: {
-      network: chain.name,
       abi: ABIs.Savings,
-      address: ADDR.savings as Address,
-      startBlock: config.startSavings,
-      maxBlockRange: config.blockrange,
+      network: {
+        mainnet: {
+          address: ADDRESS[mainnet.id]?.savings,
+          startBlock: CONFIG[mainnet.id].startSavings,
+          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        },
+        bsc: {
+          address: ADDRESS[bsc.id]?.savings,
+          startBlock: CONFIG[bsc.id].startSavings,
+          maxBlockRange: CONFIG[bsc.id].blockrange,
+        },
+        bscTestnet: {
+          address: ADDRESS[bscTestnet.id]?.savings,
+          startBlock: CONFIG[bscTestnet.id].startSavings,
+          maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+        },
+      },
     },
     Roller: {
-      network: chain.name,
       abi: ABIs.PositionRoller,
-      address: ADDR.roller as Address,
-      startBlock: config.startMintingHub,
-      maxBlockRange: config.blockrange,
+      network: {
+        mainnet: {
+          address: ADDRESS[mainnet.id]?.roller,
+          startBlock: CONFIG[mainnet.id].startMintingHub,
+          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        },
+        bsc: {
+          address: ADDRESS[bsc.id]?.roller,
+          startBlock: CONFIG[bsc.id].startMintingHub,
+          maxBlockRange: CONFIG[bsc.id].blockrange,
+        },
+        bscTestnet: {
+          address: ADDRESS[bscTestnet.id]?.roller,
+          startBlock: CONFIG[bscTestnet.id].startMintingHub,
+          maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+        },
+      },
     },
   },
 });
