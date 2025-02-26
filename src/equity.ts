@@ -1,120 +1,176 @@
 import { ponder } from "@/generated";
-import { zeroAddress } from "viem";
+import { Address, zeroAddress } from 'viem';
+import { ActiveUser, Delegation, Ecosystem, Trade, TradeChart, VotingPower } from '../ponder.schema'
 
-ponder.on("Equity:Trade", async ({ event, context }) => {
-  const { Trade, VotingPower, TradeChart, ActiveUser } = context.db;
+ponder.on('Equity:Trade', async ({ event, context }) => {
+  const {db, network } = context;
+  const database = db;
+  const { chainId } = network;
+  const trader: Address = event.args.who;
+  const amount: bigint = event.args.totPrice;
+  const shares: bigint = event.args.amount;
+  const price: bigint = event.args.newprice;
+  const time: bigint = event.block.timestamp;
 
-  await Trade.create({
-    id: event.args.who + "_" + event.block.timestamp.toString(),
-    data: {
-      trader: event.args.who,
-      amount: event.args.totPrice,
-      shares: event.args.amount,
-      price: event.args.newprice,
-      time: event.block.timestamp,
-    },
+  await database.insert(Trade).values({
+    chainId,
+    id: event.args.who + '_' + time.toString(),
+    trader,
+    amount,
+    shares,
+    price,
+    time,
   });
 
-  await VotingPower.upsert({
+  // invested or redeemed
+  if (shares > 0n) {
+    // cnt
+    await database.insert(Ecosystem).values({
+      chainId,
+      id: 'Equity:InvestedCounter',
+      value: '',
+      amount: 1n,
+    }).onConflictDoUpdate((current)=> ({
+      amount: current.amount + 1n,
+    }))
+
+    // accum.
+    await database.insert(Ecosystem).values({
+      chainId,
+      id: 'Equity:Invested',
+      value: '',
+      amount: 0n,
+    }).onConflictDoUpdate((current)=> ({
+      amount: current.amount + amount,
+    }));
+
+    // calc fee PPM for raw data
+    await database.insert(Ecosystem).values({
+      chainId,
+      id: 'Equity:InvestedFeePaidPPM',
+      value: '',
+      amount: 0n,
+    }).onConflictDoUpdate((current)=> ({
+      amount: current.amount + amount * 3000n,
+    }));
+
+  } else {
+    // cnt
+    await database.insert(Ecosystem).values({
+      chainId,
+      id: 'Equity:RedeemedCounter',
+      value: '',
+      amount: 1n,
+    }).onConflictDoUpdate((current)=> ({
+      amount: current.amount + 1n,
+    }));
+
+    // accum.
+    await database.insert(Ecosystem).values({
+      chainId,
+      id: 'Equity:Redeemed',
+      value: '',
+      amount: 0n,
+    }).onConflictDoUpdate((current)=> ({
+      amount: current.amount + amount,
+    }));
+
+    // calc fee PPM for raw data
+    await database.insert(Ecosystem).values({
+      chainId,
+      id: 'Equity:RedeemedFeePaidPPM',
+      value: '',
+      amount: 0n,
+    }).onConflictDoUpdate((current)=> ({
+      amount: current.amount + amount * 3000n,
+    }));
+  }
+
+  await database.insert(VotingPower).values({
+    chainId,
     id: event.args.who,
-    create: {
-      address: event.args.who,
-      votingPower: event.args.amount,
-    },
-    update: ({ current }) => ({
-      votingPower: current.votingPower + event.args.amount,
-    }),
-  });
+    address: event.args.who,
+    votingPower: event.args.amount,
+  }).onConflictDoUpdate((current)=> ({
+    votingPower: current.votingPower + event.args.amount,
+  }));
 
-  const startTime = (event.block.timestamp / 86400n) * 86400n;
-  await TradeChart.upsert({
-    id: startTime.toString(),
-    create: {
-      time: startTime,
+  await database.insert(TradeChart).values({
+    chainId,
+    id: time.toString(),
+    time,
+    lastPrice: event.args.newprice,
+    }).onConflictDoUpdate((current)=> ({
       lastPrice: event.args.newprice,
-    },
-    update: ({ current }) => ({
-      lastPrice: event.args.newprice,
-    }),
-  });
+    }));
 
-  await ActiveUser.upsert({
+  await database.insert(ActiveUser).values({
+    chainId,
     id: event.args.who,
-    create: {
-      lastActiveTime: event.block.timestamp,
-    },
-    update: () => ({
-      lastActiveTime: event.block.timestamp,
-    }),
-  });
+    lastActiveTime: event.block.timestamp,
+  }).onConflictDoUpdate(()=> ({
+    lastActiveTime: event.block.timestamp,
+  }));
 });
 
-ponder.on("Equity:Transfer", async ({ event, context }) => {
-  const { VotingPower, ActiveUser } = context.db;
+ponder.on('Equity:Transfer', async ({ event, context }) => {
+  const {db, network} = context;
+  const database = db;
+  const { chainId } = network;
 
   if (event.args.from == zeroAddress || event.args.to == zeroAddress) return;
 
-  await VotingPower.update({
-    id: event.args.from,
-    data: ({ current }) => ({
-      votingPower: current.votingPower - event.args.value,
-    }),
-  });
+  await database.update(VotingPower, {id: event.args.from, chainId}).set( (row) => {
+    return {
+      votingPower: row.votingPower - BigInt(event.args.value),
+    }
+  })
 
-  await VotingPower.upsert({
+  await database.insert(VotingPower).values({
+    chainId,
     id: event.args.to,
-    create: {
-      address: event.args.to,
-      votingPower: event.args.value,
-    },
-    update: ({ current }) => ({
-      votingPower: current.votingPower + event.args.value,
-    }),
-  });
+    address: event.args.to,
+    votingPower: event.args.value,
+  }).onConflictDoUpdate((current)=> ({
+    votingPower: current.votingPower + event.args.value,
+  }));
 
-  await ActiveUser.upsert({
+  await database.insert(ActiveUser).values({
+    chainId,
     id: event.args.from,
-    create: {
-      lastActiveTime: event.block.timestamp,
-    },
-    update: () => ({
-      lastActiveTime: event.block.timestamp,
-    }),
-  });
-  await ActiveUser.upsert({
+    lastActiveTime: event.block.timestamp,
+  }).onConflictDoUpdate(()=> ({
+    lastActiveTime: event.block.timestamp,
+  }));
+
+  await database.insert(ActiveUser).values({
+    chainId,
     id: event.args.to,
-    create: {
-      lastActiveTime: event.block.timestamp,
-    },
-    update: () => ({
-      lastActiveTime: event.block.timestamp,
-    }),
-  });
+    lastActiveTime: event.block.timestamp,
+  }).onConflictDoUpdate(()=> ({
+    lastActiveTime: event.block.timestamp,
+  }));
 });
 
-ponder.on("Equity:Delegation", async ({ event, context }) => {
-  const { Delegation, ActiveUser } = context.db;
+ponder.on('Equity:Delegation', async ({ event, context }) => {
+  const { db, network } = context;
+  const database = db;
+  const { chainId } = network;
 
-  await Delegation.upsert({
+  await database.insert(Delegation).values({
+    chainId,
     id: event.args.from,
-    create: {
-      owner: event.args.from,
-      delegatedTo: event.args.to,
-      pureDelegatedFrom: event.args.from,
-    },
-    update: {
-      owner: event.args.from,
-      delegatedTo: event.args.to,
-    },
-  });
+    owner: event.args.from,
+    delegatedTo: event.args.to,
+  }).onConflictDoUpdate(()=> ({
+    delegatedTo: event.args.to,
+  }));
 
-  await ActiveUser.upsert({
+  await database.insert(ActiveUser).values({
+    chainId,
     id: event.args.from,
-    create: {
-      lastActiveTime: event.block.timestamp,
-    },
-    update: () => ({
-      lastActiveTime: event.block.timestamp,
-    }),
-  });
+    lastActiveTime: event.block.timestamp,
+  }).onConflictDoUpdate(()=> ({
+    lastActiveTime: event.block.timestamp,
+  }));
 });
