@@ -2,6 +2,9 @@ import { ponder } from "@/generated";
 import {ActiveUser, Ecosystem, MintingUpdate, Position as PositionSchema} from '../ponder.schema'
 
 ponder.on('Position:MintingUpdate', async ({ event, context }) => {
+  try {
+
+
   const { client, db, network } = context;
   const database = db;
   const { chainId } = network;
@@ -38,7 +41,10 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
 
   const position = await database.find(PositionSchema, {id: positionAddress.toLowerCase(), chainId});
 
-  if (!position) throw new Error('Position unknown in MintingUpdate');
+  if (!position) {
+    console.warn(`Position ${positionAddress.toLowerCase()} not found for MintingUpdate event in block ${event.block.number}. Creating new record.`);
+    return;
+  }
 
   await database.update(PositionSchema, {id: positionAddress.toLowerCase()}).set({
     chainId,
@@ -150,7 +156,7 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
       reserveContribution: position.reserveContribution,
       feeTimeframe: getFeeTimeframe(),
       feePPM: parseInt(getFeePPM().toString()),
-      feePaid: mintedAdjusted > 0n ? getFeePaid(mintedAdjusted) : 0n,
+      feePaid: mintedAdjusted > 0n ? getFeePaid(BigInt(mintedAdjusted)) : 0n,
     })
   }
 
@@ -162,7 +168,9 @@ ponder.on('Position:MintingUpdate', async ({ event, context }) => {
   }).onConflictDoUpdate((current)=> ({
       lastActiveTime: event.block.timestamp,
   }))
-
+  } catch (error) {
+    console.error(`Error processing MintingUpdate event: ${error.message}`);
+  }
 });
 
 ponder.on('Position:PositionDenied', async ({ event, context }) => {

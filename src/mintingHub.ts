@@ -310,95 +310,103 @@ ponder.on('MintingHub:ChallengeStarted', async ({ event, context }) => {
 
 // event ChallengeAverted(address indexed position, uint256 number, uint256 size);
 ponder.on('MintingHub:ChallengeAverted', async ({ event, context }) => {
-  const { client, contracts, db, network } = context;
-  const database = db;
-  const { MintingHub, Position } = contracts;
-  const { chainId } = network;
+  try {
+    const { client, contracts, db, network } = context;
+    const database = db;
+    const { MintingHub, Position } = contracts;
+    const { chainId } = network;
 
-  // console.log('ChallengeAverted', event.args);
+    // console.log('ChallengeAverted', event.args);
 
-  const challenges = await client.readContract({
-    abi: MintingHub.abi,
-    address: MintingHub.address,
-    functionName: 'challenges',
-    args: [event.args.number],
-  });
+    const challenges = await client.readContract({
+      abi: MintingHub.abi,
+      address: MintingHub.address,
+      functionName: 'challenges',
+      args: [event.args.number],
+    });
 
-  // console.log('ChallengeAverted:challenges', challenges);
+    // console.log('ChallengeAverted:challenges', challenges);
 
-  const cooldown = await client.readContract({
-    abi: Position.abi,
-    address: event.args.position,
-    functionName: 'cooldown',
-  });
+    const cooldown = await client.readContract({
+      abi: Position.abi,
+      address: event.args.position,
+      functionName: 'cooldown',
+    });
 
-  const liqPrice = await client.readContract({
-    abi: Position.abi,
-    address: event.args.position,
-    functionName: 'price',
-  });
+    const liqPrice = await client.readContract({
+      abi: Position.abi,
+      address: event.args.position,
+      functionName: 'price',
+    });
 
-  const challengeId = getChallengeId(event.args.position, event.args.number);
+    const challengeId = getChallengeId(event.args.position, event.args.number);
 
-  const challenge = await database.find(Challenge, {id:challengeId, chainId})
+    const challenge = await database.find(Challenge, {id:challengeId, chainId})
 
-  if (!challenge) throw new Error('ChallengeV1 not found');
-
-  const challengeBidId = getChallengeBidId(event.args.position, event.args.number, challenge.bids);
-
-  const _price: number = parseInt(liqPrice.toString());
-  const _size: number = parseInt(event.args.size.toString());
-  const _amount: number = (_price / 1e18) * _size;
-
-  // create ChallengeBid entry
-  await database.insert(ChallengeBid).values({
-    chainId,
-    id: challengeBidId,
-    position: event.args.position,
-    number: event.args.number,
-    numberBid: challenge.bids,
-    bidder: event.transaction.from,
-    created: event.block.timestamp,
-    bidType: 'Averted',
-    bid: BigInt(_amount),
-    price: liqPrice,
-    filledSize: event.args.size,
-    acquiredCollateral: 0n,
-    challengeSize: challenge.size,
-  });
-
-  // update Challenge related changes
-  await database.update(Challenge, {id: challengeId, chainId}).set( (row) => {
-    return {
-      bids: row.bids + 1n,
-      filledSize: row.filledSize + event.args.size,
-      status: challenges[3] === 0n ? 'Success' : row.status,
+    if (!challenge) {
+      console.warn(`Challenge not found for position ${event.args.position} and number ${event.args.number}. Skipping processing.`);
+      return; // Exit gracefully instead of throwing
     }
-  })
 
-  // update Position related changes
-  await database.update(PositionSchema, {id: event.args.position.toLowerCase(), chainId}).set( () => ({
-    cooldown: BigInt(cooldown)
-  }))
+    const challengeBidId = getChallengeBidId(event.args.position, event.args.number, challenge.bids);
 
-  // ------------------------------------------------------------------
-  // COMMON
-  await database.insert(Ecosystem).values({
-    chainId,
-    id: 'MintingHub:TotalAvertedBids',
-    value: '',
-    amount: 1n,
-  }).onConflictDoUpdate((current) => ({
-    amount: current.amount + 1n,
-  }))
+    const _price: number = parseInt(liqPrice.toString());
+    const _size: number = parseInt(event.args.size.toString());
+    const _amount: number = (_price / 1e18) * _size;
 
-  await database.insert(ActiveUser).values({
-    chainId,
-    id: event.transaction.from,
-    lastActiveTime: event.block.timestamp,
-  }).onConflictDoUpdate(() => ({
-    lastActiveTime: event.block.timestamp,
-  }))
+    // create ChallengeBid entry
+    await database.insert(ChallengeBid).values({
+      chainId,
+      id: challengeBidId,
+      position: event.args.position,
+      number: event.args.number,
+      numberBid: challenge.bids,
+      bidder: event.transaction.from,
+      created: event.block.timestamp,
+      bidType: 'Averted',
+      bid: BigInt(_amount),
+      price: liqPrice,
+      filledSize: event.args.size,
+      acquiredCollateral: 0n,
+      challengeSize: challenge.size,
+    });
+
+    // update Challenge related changes
+    await database.update(Challenge, {id: challengeId, chainId}).set( (row) => {
+      return {
+        bids: row.bids + 1n,
+        filledSize: row.filledSize + event.args.size,
+        status: challenges[3] === 0n ? 'Success' : row.status,
+      }
+    })
+
+    // update Position related changes
+    await database.update(PositionSchema, {id: event.args.position.toLowerCase(), chainId}).set( () => ({
+      cooldown: BigInt(cooldown)
+    }))
+
+    // ------------------------------------------------------------------
+    // COMMON
+    await database.insert(Ecosystem).values({
+      chainId,
+      id: 'MintingHub:TotalAvertedBids',
+      value: '',
+      amount: 1n,
+    }).onConflictDoUpdate((current) => ({
+      amount: current.amount + 1n,
+    }))
+
+    await database.insert(ActiveUser).values({
+      chainId,
+      id: event.transaction.from,
+      lastActiveTime: event.block.timestamp,
+    }).onConflictDoUpdate(() => ({
+      lastActiveTime: event.block.timestamp,
+    }))
+
+  } catch (error) {
+    console.error(`Error processing ChallengeAverted event: ${error.message}`);
+  }
 });
 
 // event ChallengeSucceeded(
@@ -410,85 +418,92 @@ ponder.on('MintingHub:ChallengeAverted', async ({ event, context }) => {
 // );
 // emit ChallengeSucceeded(address(_challenge.position), _challengeNumber, offer, transferredCollateral, size);
 ponder.on('MintingHub:ChallengeSucceeded', async ({ event, context }) => {
-  const { client, contracts, db, network } = context;
-  const database = db;
-  const { MintingHub, Position } = contracts;
-  const { chainId } = network;
+  try {
+    const { client, contracts, db, network } = context;
+    const database = db;
+    const { MintingHub, Position } = contracts;
+    const { chainId } = network;
 
-  // console.log('ChallengeSucceeded', event.args);
+    // console.log('ChallengeSucceeded', event.args);
 
-  const challenges = await client.readContract({
-    abi: MintingHub.abi,
-    address: MintingHub.address,
-    functionName: 'challenges',
-    args: [event.args.number],
-  });
+    const challenges = await client.readContract({
+      abi: MintingHub.abi,
+      address: MintingHub.address,
+      functionName: 'challenges',
+      args: [event.args.number],
+    });
 
-  // console.log('ChallengeSucceeded:challenges', challenges);
+    // console.log('ChallengeSucceeded:challenges', challenges);
 
-  const cooldown = await client.readContract({
-    abi: Position.abi,
-    address: event.args.position,
-    functionName: 'cooldown',
-  });
+    const cooldown = await client.readContract({
+      abi: Position.abi,
+      address: event.args.position,
+      functionName: 'cooldown',
+    });
 
-  const challengeId = getChallengeId(event.args.position, event.args.number);
-  const challenge = await database.find(Challenge, {id:challengeId, chainId})
+    const challengeId = getChallengeId(event.args.position, event.args.number);
+    const challenge = await database.find(Challenge, {id:challengeId, chainId})
 
-  if (!challenge) throw new Error('ChallengeV1 not found');
+    if (!challenge) {
+      console.warn(`Challenge not found for position ${event.args.position} and number ${event.args.number}. Skipping processing.`);
+      return; // Exit gracefully instead of throwing
+    }
 
-  const challengeBidId = getChallengeBidId(event.args.position, event.args.number, challenge.bids);
+    const challengeBidId = getChallengeBidId(event.args.position, event.args.number, challenge.bids);
 
-  const _bid: number = parseInt(event.args.bid.toString());
-  const _size: number = parseInt(event.args.challengeSize.toString());
-  const _price: number = (_bid * 10 ** 18) / _size;
+    const _bid: number = parseInt(event.args.bid.toString());
+    const _size: number = parseInt(event.args.challengeSize.toString());
+    const _price: number = (_bid * 10 ** 18) / _size;
 
-  // create ChallengeBidV1 entry
-  await database.insert(ChallengeBid).values({
-    chainId,
-    id: challengeBidId,
-    position: event.args.position,
-    number: event.args.number,
-    numberBid: challenge.bids,
-    bidder: event.transaction.from,
-    created: event.block.timestamp,
-    bidType: 'Succeeded',
-    bid: event.args.bid,
-    price: BigInt(_price),
-    filledSize: event.args.challengeSize,
-    acquiredCollateral: event.args.acquiredCollateral,
-    challengeSize: challenge.size,
-  });
+    // create ChallengeBidV1 entry
+    await database.insert(ChallengeBid).values({
+      chainId,
+      id: challengeBidId,
+      position: event.args.position,
+      number: event.args.number,
+      numberBid: challenge.bids,
+      bidder: event.transaction.from,
+      created: event.block.timestamp,
+      bidType: 'Succeeded',
+      bid: event.args.bid,
+      price: BigInt(_price),
+      filledSize: event.args.challengeSize,
+      acquiredCollateral: event.args.acquiredCollateral,
+      challengeSize: challenge.size,
+    });
 
-  await database.update(Challenge, {id: challengeId, chainId}).set( (row) => ({
-    bids: row.bids + 1n,
-    acquiredCollateral: row.acquiredCollateral + event.args.acquiredCollateral,
-    filledSize: row.filledSize + event.args.challengeSize,
-    status: challenges[3] === 0n ? 'Success' : row.status
-  }))
+    await database.update(Challenge, {id: challengeId, chainId}).set( (row) => ({
+      bids: row.bids + 1n,
+      acquiredCollateral: row.acquiredCollateral + event.args.acquiredCollateral,
+      filledSize: row.filledSize + event.args.challengeSize,
+      status: challenges[3] === 0n ? 'Success' : row.status
+    }))
 
-  await database.update(PositionSchema, {id: event.args.position.toLowerCase(), chainId}).set( () => ({
-      cooldown: BigInt(cooldown)
-  }))
+    await database.update(PositionSchema, {id: event.args.position.toLowerCase(), chainId}).set( () => ({
+        cooldown: BigInt(cooldown)
+    }))
 
-  // ------------------------------------------------------------------
-  // COMMON
-  await database.insert(Ecosystem).values({
-    chainId,
-    id: 'MintingHub:TotalSucceededBids',
-    value: '',
-    amount: 1n,
-  }).onConflictDoUpdate((current) => ({
-    amount: current.amount + 1n,
-  }))
+    // ------------------------------------------------------------------
+    // COMMON
+    await database.insert(Ecosystem).values({
+      chainId,
+      id: 'MintingHub:TotalSucceededBids',
+      value: '',
+      amount: 1n,
+    }).onConflictDoUpdate((current) => ({
+      amount: current.amount + 1n,
+    }))
 
-  await database.insert(ActiveUser).values({
-    chainId,
-    id: event.transaction.from,
-    lastActiveTime: event.block.timestamp,
-  }).onConflictDoUpdate(() => ({
-    lastActiveTime: event.block.timestamp,
-  }))
+    await database.insert(ActiveUser).values({
+      chainId,
+      id: event.transaction.from,
+      lastActiveTime: event.block.timestamp,
+    }).onConflictDoUpdate(() => ({
+      lastActiveTime: event.block.timestamp,
+    }))
+  } catch (error) {
+    console.error(`Error processing ChallengeSucceeded event: ${error.message}`);
+  }
 });
 
 const getChallengeId = (position: string, number: bigint) => {
