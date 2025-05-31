@@ -1,58 +1,24 @@
-import { createConfig } from "@ponder/core";
-import "dotenv/config";
-import { http, parseAbiItem } from "viem";
+import {createConfig} from '@ponder/core'
+import 'dotenv/config'
+import {http, parseAbiItem} from 'viem'
 
-import {bsc, bscTestnet, mainnet} from 'viem/chains'
+import {base, bsc, bscTestnet, mainnet, polygon} from 'viem/chains'
 
-import { ADDRESS } from "./ponder.address";
-import { ABIs } from 'abis'
-
-// export const chain = (process.env.PONDER_PROFILE as string) == 'dev' ? bscTestnet : bsc;
-
-const CONFIG = {
-  [bsc.id]: {
-    blockrange: 10000,
-    maxRequestsPerSecond: 50,
-    pollingInterval: 5_000,
-    rpc: process.env.PONDER_RPC_URL_56 ?? bsc.rpcUrls.default.http[0],
-    startMintingHub: 45094649,
-    startOracleFreeDollar: 45094487,
-    startSavings: 45094581,
-  },
-  [bscTestnet.id]: {
-    blockrange: undefined,
-    maxRequestsPerSecond: 25,
-    pollingInterval: 5_000,
-    rpc: process.env.PONDER_RPC_URL_97 ?? bscTestnet.rpcUrls.default.http[0],
-    startMintingHub: 46376356,
-    startOracleFreeDollar: 46376031,
-    startSavings: 46376310,
-  },
-  [mainnet.id]: {
-    blockrange: undefined,
-    maxRequestsPerSecond: 25,
-    pollingInterval: 5_000,
-    rpc: process.env.PONDER_RPC_URL_1 ?? mainnet.rpcUrls.default.http[0],
-    startMintingHub: 21587949,
-    startOracleFreeDollar: 21587864,
-    startSavings: 21587934,
-  },
-};
+import {ADDRESS} from './ponder.address'
+import {ABIs} from './abis'
+import {CONFIG} from './config'
 
 const openPositionEvent = parseAbiItem(
   "event PositionOpened(address indexed owner,address indexed position,address original,address collateral)"
 );
 
-// const openPositionEvent = ABIs.MintingHub.find((a) => a.type === 'event' && a.name === 'PositionOpened');
-// if (openPositionEvent === undefined) throw new Error('openPositionEventV2 not found.');
-
 export default createConfig({
   networks: {
-    mainnet: {
-      chainId: 1,
-      maxRequestsPerSecond: CONFIG[mainnet.id].maxRequestsPerSecond,
-      pollingInterval: CONFIG[mainnet.id].pollingInterval,
-      transport: http(CONFIG[mainnet.id].rpc),
+    base: {
+      chainId: 8453,
+      maxRequestsPerSecond: CONFIG[base.id].maxRequestsPerSecond,
+      pollingInterval: CONFIG[base.id].pollingInterval,
+      transport: http(CONFIG[base.id].rpc),
     },
     bsc: {
       chainId: 56,
@@ -66,15 +32,27 @@ export default createConfig({
       pollingInterval: CONFIG[bscTestnet.id].pollingInterval,
       transport: http(CONFIG[bscTestnet.id].rpc),
     },
+    mainnet: {
+      chainId: 1,
+      maxRequestsPerSecond: CONFIG[mainnet.id].maxRequestsPerSecond,
+      pollingInterval: CONFIG[mainnet.id].pollingInterval,
+      transport: http(CONFIG[mainnet.id].rpc),
+    },
+    polygon: {
+      chainId: 137,
+      maxRequestsPerSecond: CONFIG[polygon.id].maxRequestsPerSecond,
+      pollingInterval: CONFIG[polygon.id].pollingInterval,
+      transport: http(CONFIG[polygon.id].rpc),
+    },
   },
   contracts: {
     OracleFreeDollar: {
       abi: ABIs.OracleFreeDollar,
       network: {
-        mainnet: {
-          address: ADDRESS[mainnet.id]?.oracleFreeDollar,
-          startBlock: CONFIG[mainnet.id].startOracleFreeDollar,
-          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        base: {
+          address: ADDRESS[base.id]?.oracleFreeDollar,
+          startBlock: CONFIG[base.id].startOracleFreeDollar,
+          maxBlockRange: CONFIG[base.id].blockrange,
         },
         bsc: {
           address: ADDRESS[bsc.id]?.oracleFreeDollar,
@@ -86,15 +64,25 @@ export default createConfig({
           startBlock: CONFIG[bscTestnet.id].startOracleFreeDollar,
           maxBlockRange: CONFIG[bscTestnet.id].blockrange,
         },
+        mainnet: {
+          address: ADDRESS[mainnet.id]?.oracleFreeDollar,
+          startBlock: CONFIG[mainnet.id].startOracleFreeDollar,
+          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        },
+        polygon: {
+          address: ADDRESS[polygon.id]?.oracleFreeDollar,
+          startBlock: CONFIG[polygon.id].startOracleFreeDollar,
+          maxBlockRange: CONFIG[polygon.id].blockrange,
+        },
       },
     },
     Equity: {
       abi: ABIs.Equity,
       network: {
-        mainnet: {
-          address: ADDRESS[mainnet.id]?.equity,
-          startBlock: CONFIG[mainnet.id].startOracleFreeDollar,
-          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        base: {
+          address: ADDRESS[base.id]?.equity,
+          startBlock: CONFIG[base.id].startOracleFreeDollar,
+          maxBlockRange: CONFIG[base.id].blockrange,
         },
         bsc: {
           address: ADDRESS[bsc.id]?.equity,
@@ -106,15 +94,26 @@ export default createConfig({
           startBlock: CONFIG[bscTestnet.id].startOracleFreeDollar,
           maxBlockRange: CONFIG[bscTestnet.id].blockrange,
         },
+        mainnet: {
+          address: ADDRESS[mainnet.id]?.equity,
+          startBlock: CONFIG[mainnet.id].startOracleFreeDollar,
+          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        },
+        polygon: {
+          address: ADDRESS[polygon.id]?.equity,
+          startBlock: CONFIG[polygon.id].startOracleFreeDollar,
+          maxBlockRange: CONFIG[polygon.id].blockrange,
+        },
+
       },
     },
     MintingHub: {
       abi: ABIs.MintingHub,
       network: {
-        mainnet: {
-          address: ADDRESS[mainnet.id]?.mintingHub,
-          startBlock: CONFIG[mainnet.id].startMintingHub,
-          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        base: {
+          address: ADDRESS[base.id]?.mintingHub,
+          startBlock: CONFIG[base.id].startMintingHub,
+          maxBlockRange: CONFIG[base.id].blockrange,
         },
         bsc: {
           address: ADDRESS[bsc.id]?.mintingHub,
@@ -126,16 +125,26 @@ export default createConfig({
           startBlock: CONFIG[bscTestnet.id].startMintingHub,
           maxBlockRange: CONFIG[bscTestnet.id].blockrange,
         },
+        mainnet: {
+          address: ADDRESS[mainnet.id]?.mintingHub,
+          startBlock: CONFIG[mainnet.id].startMintingHub,
+          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        },
+        polygon: {
+          address: ADDRESS[polygon.id]?.mintingHub,
+          startBlock: CONFIG[polygon.id].startMintingHub,
+          maxBlockRange: CONFIG[polygon.id].blockrange,
+        },
       },
     },
     Position: {
       abi: ABIs.Position,
       network: {
-        mainnet: {
-          startBlock: CONFIG[mainnet.id].startMintingHub,
-          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        base: {
+          startBlock: CONFIG[base.id].startMintingHub,
+          maxBlockRange: CONFIG[base.id].blockrange,
           factory: {
-            address: ADDRESS[mainnet.id]?.mintingHub,
+            address: ADDRESS[base.id]?.mintingHub,
             event: openPositionEvent,
             parameter: "position",
           },
@@ -158,15 +167,33 @@ export default createConfig({
             parameter: "position",
           },
         },
+        mainnet: {
+          startBlock: CONFIG[mainnet.id].startMintingHub,
+          maxBlockRange: CONFIG[mainnet.id].blockrange,
+          factory: {
+            address: ADDRESS[mainnet.id]?.mintingHub,
+            event: openPositionEvent,
+            parameter: "position",
+          },
+        },
+        polygon: {
+          startBlock: CONFIG[polygon.id].startMintingHub,
+          maxBlockRange: CONFIG[polygon.id].blockrange,
+          factory: {
+            address: ADDRESS[polygon.id]?.mintingHub,
+            event: openPositionEvent,
+            parameter: "position",
+          },
+        },
       },
     },
     Savings: {
       abi: ABIs.Savings,
       network: {
-        mainnet: {
-          address: ADDRESS[mainnet.id]?.savings,
-          startBlock: CONFIG[mainnet.id].startSavings,
-          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        base: {
+          address: ADDRESS[base.id]?.savings,
+          startBlock: CONFIG[base.id].startSavings,
+          maxBlockRange: CONFIG[base.id].blockrange,
         },
         bsc: {
           address: ADDRESS[bsc.id]?.savings,
@@ -178,15 +205,25 @@ export default createConfig({
           startBlock: CONFIG[bscTestnet.id].startSavings,
           maxBlockRange: CONFIG[bscTestnet.id].blockrange,
         },
+        mainnet: {
+          address: ADDRESS[mainnet.id]?.savings,
+          startBlock: CONFIG[mainnet.id].startSavings,
+          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        },
+        polygon: {
+          address: ADDRESS[polygon.id]?.savings,
+          startBlock: CONFIG[polygon.id].startSavings,
+          maxBlockRange: CONFIG[polygon.id].blockrange,
+        },
       },
     },
     Roller: {
       abi: ABIs.PositionRoller,
       network: {
-        mainnet: {
-          address: ADDRESS[mainnet.id]?.roller,
-          startBlock: CONFIG[mainnet.id].startMintingHub,
-          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        base: {
+          address: ADDRESS[base.id]?.roller,
+          startBlock: CONFIG[base.id].startMintingHub,
+          maxBlockRange: CONFIG[base.id].blockrange,
         },
         bsc: {
           address: ADDRESS[bsc.id]?.roller,
@@ -197,6 +234,16 @@ export default createConfig({
           address: ADDRESS[bscTestnet.id]?.roller,
           startBlock: CONFIG[bscTestnet.id].startMintingHub,
           maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+        },
+        mainnet: {
+          address: ADDRESS[mainnet.id]?.roller,
+          startBlock: CONFIG[mainnet.id].startMintingHub,
+          maxBlockRange: CONFIG[mainnet.id].blockrange,
+        },
+        polygon: {
+          address: ADDRESS[polygon.id]?.roller,
+          startBlock: CONFIG[polygon.id].startMintingHub,
+          maxBlockRange: CONFIG[polygon.id].blockrange,
         },
       },
     },
