@@ -26,12 +26,12 @@ export default createConfig({
       pollingInterval: CONFIG[bsc.id].pollingInterval,
       transport: http(CONFIG[bsc.id].rpc),
     },
-    bscTestnet: {
-      chainId: 97,
-      maxRequestsPerSecond: CONFIG[bscTestnet.id].maxRequestsPerSecond,
-      pollingInterval: CONFIG[bscTestnet.id].pollingInterval,
-      transport: http(CONFIG[bscTestnet.id].rpc),
-    },
+    // bscTestnet: {
+    //   chainId: 97,
+    //   maxRequestsPerSecond: CONFIG[bscTestnet.id].maxRequestsPerSecond,
+    //   pollingInterval: CONFIG[bscTestnet.id].pollingInterval,
+    //   transport: http(CONFIG[bscTestnet.id].rpc),
+    // },
     mainnet: {
       chainId: 1,
       maxRequestsPerSecond: CONFIG[mainnet.id].maxRequestsPerSecond,
@@ -59,11 +59,11 @@ export default createConfig({
           startBlock: CONFIG[bsc.id].startOracleFreeDollar,
           maxBlockRange: CONFIG[bsc.id].blockrange,
         },
-        bscTestnet: {
-          address: ADDRESS[bscTestnet.id]?.oracleFreeDollar,
-          startBlock: CONFIG[bscTestnet.id].startOracleFreeDollar,
-          maxBlockRange: CONFIG[bscTestnet.id].blockrange,
-        },
+        // bscTestnet: {
+        //   address: ADDRESS[bscTestnet.id]?.oracleFreeDollar,
+        //   startBlock: CONFIG[bscTestnet.id].startOracleFreeDollar,
+        //   maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+        // },
         mainnet: {
           address: ADDRESS[mainnet.id]?.oracleFreeDollar,
           startBlock: CONFIG[mainnet.id].startOracleFreeDollar,
@@ -89,11 +89,11 @@ export default createConfig({
           startBlock: CONFIG[bsc.id].startOracleFreeDollar,
           maxBlockRange: CONFIG[bsc.id].blockrange,
         },
-        bscTestnet: {
-          address: ADDRESS[bscTestnet.id]?.equity,
-          startBlock: CONFIG[bscTestnet.id].startOracleFreeDollar,
-          maxBlockRange: CONFIG[bscTestnet.id].blockrange,
-        },
+        // bscTestnet: {
+        //   address: ADDRESS[bscTestnet.id]?.equity,
+        //   startBlock: CONFIG[bscTestnet.id].startOracleFreeDollar,
+        //   maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+        // },
         mainnet: {
           address: ADDRESS[mainnet.id]?.equity,
           startBlock: CONFIG[mainnet.id].startOracleFreeDollar,
@@ -120,11 +120,11 @@ export default createConfig({
           startBlock: CONFIG[bsc.id].startMintingHub,
           maxBlockRange: CONFIG[bsc.id].blockrange,
         },
-        bscTestnet: {
-          address: ADDRESS[bscTestnet.id]?.mintingHub,
-          startBlock: CONFIG[bscTestnet.id].startMintingHub,
-          maxBlockRange: CONFIG[bscTestnet.id].blockrange,
-        },
+        // bscTestnet: {
+        //   address: ADDRESS[bscTestnet.id]?.mintingHub,
+        //   startBlock: CONFIG[bscTestnet.id].startMintingHub,
+        //   maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+        // },
         mainnet: {
           address: ADDRESS[mainnet.id]?.mintingHub,
           startBlock: CONFIG[mainnet.id].startMintingHub,
@@ -158,15 +158,15 @@ export default createConfig({
             parameter: "position",
           },
         },
-        bscTestnet: {
-          startBlock: CONFIG[bscTestnet.id].startMintingHub,
-          maxBlockRange: CONFIG[bscTestnet.id].blockrange,
-          factory: {
-            address: ADDRESS[bscTestnet.id]?.mintingHub,
-            event: openPositionEvent,
-            parameter: "position",
-          },
-        },
+        // bscTestnet: {
+        //   startBlock: CONFIG[bscTestnet.id].startMintingHub,
+        //   maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+        //   factory: {
+        //     address: ADDRESS[bscTestnet.id]?.mintingHub,
+        //     event: openPositionEvent,
+        //     parameter: "position",
+        //   },
+        // },
         mainnet: {
           startBlock: CONFIG[mainnet.id].startMintingHub,
           maxBlockRange: CONFIG[mainnet.id].blockrange,
@@ -200,11 +200,11 @@ export default createConfig({
           startBlock: CONFIG[bsc.id].startSavings,
           maxBlockRange: CONFIG[bsc.id].blockrange,
         },
-        bscTestnet: {
-          address: ADDRESS[bscTestnet.id]?.savings,
-          startBlock: CONFIG[bscTestnet.id].startSavings,
-          maxBlockRange: CONFIG[bscTestnet.id].blockrange,
-        },
+        // bscTestnet: {
+        //   address: ADDRESS[bscTestnet.id]?.savings,
+        //   startBlock: CONFIG[bscTestnet.id].startSavings,
+        //   maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+        // },
         mainnet: {
           address: ADDRESS[mainnet.id]?.savings,
           startBlock: CONFIG[mainnet.id].startSavings,
@@ -230,11 +230,11 @@ export default createConfig({
           startBlock: CONFIG[bsc.id].startMintingHub,
           maxBlockRange: CONFIG[bsc.id].blockrange,
         },
-        bscTestnet: {
-          address: ADDRESS[bscTestnet.id]?.roller,
-          startBlock: CONFIG[bscTestnet.id].startMintingHub,
-          maxBlockRange: CONFIG[bscTestnet.id].blockrange,
-        },
+        // bscTestnet: {
+        //   address: ADDRESS[bscTestnet.id]?.roller,
+        //   startBlock: CONFIG[bscTestnet.id].startMintingHub,
+        //   maxBlockRange: CONFIG[bscTestnet.id].blockrange,
+        // },
         mainnet: {
           address: ADDRESS[mainnet.id]?.roller,
           startBlock: CONFIG[mainnet.id].startMintingHub,
